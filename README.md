@@ -29,7 +29,7 @@ The stronger YOU get, the stronger your character gets.
             - The first level ( 0 - 249 XP ) is a safe zone  
         - Weekly bosses ( not yet implemented )  
         - Monsters to fight ( not yet implemented )  
-        - Items [ armor, weapons, gold, etc ] ( not yet implemented )  
+        - Items, armor, weapons, gold, etc ( not yet implemented )  
     - Ability to log every exercise you do, and complete access to your data  
   
 ### How do I get this running?  
