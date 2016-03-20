@@ -1,0 +1,9 @@
+*.py[co]
+__pycache__/
+.coverage
+venv/
+.tox/
+*.egg-info/
+build/
+dist/
+*.swp
