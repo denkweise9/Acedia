@@ -1,0 +1,9 @@
+0.1
+---
+
+-  userinput.py unittest 100%
+-  store.py unittest 75%
+-  cardio.py nearly feature complete
+-  physical.py still needs something in it
+
+---
