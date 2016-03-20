@@ -35,8 +35,7 @@ The stronger YOU get, the stronger your character gets.
 ### How do I get this running?  
 - Download the project using one of these ways:  
     - git  
-    - https://bitbucket.org/pride/sloth/downloads  
-    - https://bitbucket.org/pride/sloth/get/HEAD.zip  
+    - https://github.com/Lvl4Sword/Sloth/archive/master.zip
 - A virtualenv is not necessary, but recommended  
 - I'm using Windows:  
     - Download python3 for your architecture from python.org  
@@ -67,7 +66,8 @@ The stronger YOU get, the stronger your character gets.
     - Let me know what you're running and I'll help you.   
   
 ### How do I run the tests?  
-- Install tox, and run it inside the repository directory  
+- Install tox, and run it inside the repository directory
+- ( such as: virtualenv/bin/tox ~/sloth )
 
 ### What needs done for tests?:  
 - cardio.py  
