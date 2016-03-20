@@ -9,10 +9,8 @@ The stronger YOU get, the stronger your character gets.
   
 ### I want to help!
 - That's great! Feel free to take a look at the following:  
-    - https://bitbucket.org/pride/sloth/issues?status=new&status=open&sort=-priority  
-        - Everything at the top is what I'd like to be done first.  
-        - You're free to work on whatever you'd like as long as it's not assigned to someone else.  
-        - ( You're free to get in contact with them and see if they need help, though. )  
+    - https://github.com/Lvl4Sword/Sloth/issues/ 
+
 - Our IRC channel is #sloth-game on irc.freenode.net if you'd like to come in and say hi.
   
 ### FAQ  
