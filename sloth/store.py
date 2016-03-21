@@ -4,12 +4,10 @@ import json
 
 class ImproperlyConfigured(Exception):
 
-
     def __init__(self, file_path, missing_keys, extra_keys):
         self.file_path = file_path
         self.missing_keys = missing_keys
         self.extra_keys = extra_keys
-
 
     def __repr__(self):
         fmt = (
@@ -26,11 +24,9 @@ class ImproperlyConfigured(Exception):
 
 class ImproperlyPopulated(Exception):
 
-
     def __init__(self, missing_keys, extra_keys):
         self.missing_keys = missing_keys
         self.extra_keys = extra_keys
-
 
     def __repr__(self):
         fmt = (
@@ -45,8 +41,10 @@ class ImproperlyPopulated(Exception):
 
 
 def _storage_property(key):
+
     def getter(self):
         return self._store[key]
+
     def setter(self, value):
         self._store[key] = value
     return property(getter, setter)
@@ -82,11 +80,9 @@ class SettingsStore(object):
         "Weight", "XP"
     ])
 
-
     def __init__(self, file_path):
         self._file_path = file_path
         self._store = {}
-
 
     def load(self):
         """
@@ -96,7 +92,6 @@ class SettingsStore(object):
         with open(self._file_path, encoding='utf-8') as infile:
             self._store = json.load(infile)
         self._verify_keys()
-
 
     def commit(self):
         """
@@ -109,7 +104,6 @@ class SettingsStore(object):
         tosave = json.dumps(self._store, sort_keys=True)
         with open(self._file_path, 'w', encoding='utf-8') as outfile:
             outfile.write(tosave)
-
 
     def _verify_keys(self):
         missing_keys = self.expected_keys.difference(self._store.keys())
@@ -131,7 +125,6 @@ class LogsStore(object):
     def __init__(self, file_path):
         self._file_path = file_path
 
-
     def load_last_entry(self):
         """
         Load the last log entry in the log file and return the
@@ -140,7 +133,7 @@ class LogsStore(object):
         line = None
         if not os.path.exists(self._file_path):
             return None
-        with open(self._file_path, 'r', encoding='utf-8') as infile:
+        with open(self._file_path, "r", encoding="utf-8") as infile:
             for line in infile:
                 pass
         if line is None:
@@ -148,24 +141,22 @@ class LogsStore(object):
         else:
             return LogEntry(json.loads(line))
 
-
     def check_log(self):
         total_points = []
         losing_points = []
         each = None
         if not os.path.exists(self._file_path):
             return
-        with open(self._file_path, 'r', encoding='utf-8') as infile:
+        with open(self._file_path, "r", encoding="utf-8") as infile:
             for each in infile:
                 each_line = json.loads(each)
                 total_points.append(each_line["Points"])
-                if each_line["Type"] == "DETERIORATE":
+                if each_line["Exercise"] == "DETERIORATE":
                     losing_points.append(each_line["Total"])
         if each is None:
             return
         else:
             return (total_points, losing_points)
-
 
     def append_entry(self, entry):
         """
@@ -173,26 +164,26 @@ class LogsStore(object):
         """
         entry._verify_keys()
         serialized = json.dumps(entry._store, sort_keys=True)
-        with open(self._file_path, 'a', encoding='utf-8') as outfile:
-            outfile.write(serialized + '\n')
+        with open(self._file_path, "a", encoding="utf-8") as outfile:
+            outfile.write(serialized + "\n")
 
 
 class LogEntry(object):
-    average = _storage_property('Average')
-    date = _storage_property('Date')
-    distance = _storage_property('Distance')
-    points = _storage_property('Points')
-    total = _storage_property('Total')
-    exercise_type = _storage_property('Type')
+    average = _storage_property("Average")
+    date = _storage_property("Date")
+    distance = _storage_property("Distance")
+    exercise = _storage_property("Exercise")
+    measuring = _storage_property("Measuring")
+    points = _storage_property("Points")
+    total = _storage_property("Total")
 
     expected_keys = frozenset([
-        'Average', 'Date', 'Distance', 'Points', 'Total', 'Type'
+        "Average", "Date", "Distance", "Exercise",
+        "Measuring", "Points", "Total",
     ])
-
 
     def __init__(self, _store=None):
         self._store = _store or {}
-
 
     def _verify_keys(self):
         missing_keys = self.expected_keys.difference(self._store.keys())

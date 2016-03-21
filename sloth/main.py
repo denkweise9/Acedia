@@ -163,12 +163,6 @@ def personal_checks(settings, logs, bmi):
     if sum(stat_list) != 26:
         raise Exception('Stat points do not equal 26.')
 
-        # make sure the goal is 1, 2, 3 or 4
-        # goal_dict = {1: 'power lifter', 2: 'become stronger',
-        #             3: 'lose weight', 4: 'cardio'}
-        # if settings.goal in [1, 2, 3 , 4]:
-        #    goal_string = goal_dict[settings.goal]
-        # else:
     if settings.goal not in [1, 2, 3, 4]:
         raise Exception('Unexpected goal ID {0!r}'.format(settings.goal))
     else:
