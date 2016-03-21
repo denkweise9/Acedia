@@ -103,11 +103,11 @@ def average_time(settings, time_strp, distance):
         print("You can run faster than Hicham El Guerrouj?")
         print("-" * 28)
     return (avg_metric, imperial_hour, imperial_minute, imperial_second,
-    metric_hour, metric_minute, metric_second)
+            metric_hour, metric_minute, metric_second)
 
 
 def average_log(avg_metric, imperial_hour, imperial_minute, imperial_second,
-    metric_hour, metric_minute, metric_second):
+                metric_hour, metric_minute, metric_second):
     try:
         if avg_metric:
             if metric_hour:
@@ -121,7 +121,8 @@ def average_log(avg_metric, imperial_hour, imperial_minute, imperial_second,
     except ValueError:
         if imperial_hour:
             total_avg = "{0:02d}:{1:02d}:{2:02d}".format(imperial_hour,
-            imperial_minute, imperial_second)
+                                                         imperial_minute,
+                                                         imperial_second)
         else:
             total_avg = "{0:02d}:{1:02d}".format(
                 imperial_minute, imperial_second)
@@ -198,9 +199,10 @@ def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
                    settings, s_xplier, today, total_avg):
 
     if settings.measuring_type == "I":
-        total_points = round((base_points * distance) * (m_xplier + s_xplier))
+        total_points = round((base_points * distance) *(m_xplier + s_xplier))
     elif settings.measuring_type == "M":
-        total_points = round(base_points * (distance * 0.62137) * (m_xplier + s_xplier))
+        total_points = round(base_points * (distance * 0.62137) *
+                                           (m_xplier + s_xplier))
 
     print("{} points were received!".format(total_points))
     print("-" * 28)
