@@ -24,7 +24,7 @@ def main(choose_, settings, logs):
 
     # The only time this would happen
     # is if you said you could run a mile faster than 3:43
-    # This was previously set to 'False',
+    # This was previously set to "False",
     # but that means it would be triggered if the seconds were 00
     if imperial_second == -1:
         return
@@ -44,6 +44,7 @@ def main(choose_, settings, logs):
                                                              imperial_second,
                                                              logging_time,
                                                              logs,
+                                                             settings,
                                                              today,
                                                              total_avg)
 
@@ -55,10 +56,10 @@ def main(choose_, settings, logs):
 
 
 def distance_info(settings):
-    if settings.measuring_type == 'I':
+    if settings.measuring_type == "I":
         distance_prompter = userinput.cardio_distance_imperial_prompter(
             activity=None)
-    elif settings.measuring_type == 'M':
+    elif settings.measuring_type == "M":
         distance_prompter = userinput.cardio_distance_metric_prompter(
             activity=None)
     distance = distance_prompter.prompt()
@@ -66,7 +67,7 @@ def distance_info(settings):
 
 
 def average_time(settings, time_strp, distance):
-    if settings.measuring_type == 'M':
+    if settings.measuring_type == "M":
         avg_imperial = time_strp.total_seconds() / (distance / 1.609344)
         avg_metric = time_strp.total_seconds() / distance
         metric_first_divmod = divmod(avg_metric, 60)
@@ -80,7 +81,7 @@ def average_time(settings, time_strp, distance):
 
         metric_second = round(metric_first_divmod[1])
 
-    elif settings.measuring_type == 'I':
+    elif settings.measuring_type == "I":
         avg_imperial = time_strp.total_seconds() / distance
         avg_metric = metric_hour = metric_minute = metric_second = False
 
@@ -99,33 +100,32 @@ def average_time(settings, time_strp, distance):
         # this is the only time imperial_second = -1
         # fails the check, and gets kicked back into main()
         imperial_second = -1
-        print('You can run faster than Hicham El Guerrouj?')
-        print('-' * 28)
+        print("You can run faster than Hicham El Guerrouj?")
+        print("-" * 28)
     return (avg_metric, imperial_hour, imperial_minute, imperial_second,
-            metric_hour, metric_minute, metric_second)
+    metric_hour, metric_minute, metric_second)
 
 
 def average_log(avg_metric, imperial_hour, imperial_minute, imperial_second,
-                metric_hour, metric_minute, metric_second):
+    metric_hour, metric_minute, metric_second):
     try:
         if avg_metric:
             if metric_hour:
-                total_avg = '{0:02d}:{1:02d}:{2:02d}'.format(
+                total_avg = "{0:02d}:{1:02d}:{2:02d}".format(
                     metric_hour, metric_minute, metric_second)
             else:
-                total_avg = '{0:02d}:{1:02d}'.format(
+                total_avg = "{0:02d}:{1:02d}".format(
                     metric_minute, metric_second)
         else:
             raise ValueError
     except ValueError:
         if imperial_hour:
-            total_avg = '{0:02d}:{1:02d}:{2:02d}'.format(imperial_hour,
-                                                         imperial_minute,
-                                                         imperial_second)
+            total_avg = "{0:02d}:{1:02d}:{2:02d}".format(imperial_hour,
+            imperial_minute, imperial_second)
         else:
-            total_avg = '{0:02d}:{1:02d}'.format(
+            total_avg = "{0:02d}:{1:02d}".format(
                 imperial_minute, imperial_second)
-    print('Your average time was {0}'.format(total_avg))
+    print("Your average time was {0}".format(total_avg))
     return(imperial_minute, imperial_second, total_avg)
 
 
@@ -136,46 +136,47 @@ def log_time(time_strp):
         log_hours = round(log_divmod[0] / 60)
         log_minutes = round(log_divmod[0] % 60)
         log_seconds = round(log_divmod[1])
-        logging_time = ('{0:02d}:{1:02d}:{2:02d}'.format(
+        logging_time = ("{0:02d}:{1:02d}:{2:02d}".format(
             log_hours, log_minutes, log_seconds))
     else:
         log_hours = False
         log_minutes = round(log_divmod[0])
         log_seconds = round(log_divmod[1])
-        logging_time = ('{0:02d}:{1:02d}'.format(
+        logging_time = ("{0:02d}:{1:02d}".format(
             log_minutes, log_seconds))
     return(log_hours, log_minutes, log_seconds, logging_time)
 
 
 def did_i_get_points(distance, imperial_minute, imperial_second, logging_time,
-                     logs, today, total_avg):
+                     logs, settings, today, total_avg):
     try:
         if 3 <= imperial_minute <= 18:
             if 3 <= imperial_minute <= 9:
-                kind = 'Run'
+                kind = "Run"
             elif 10 <= imperial_minute <= 14:
-                kind = 'Jog'
+                kind = "Jog"
             elif 15 <= imperial_minute <= 18:
-                kind = 'Walk'
-            base_points = workouts['Cardio'][kind]
+                kind = "Walk"
+            base_points = workouts["Cardio"][kind]
             m_xplier = cardio_xplier_dict[kind][imperial_minute]
             s_xplier = second_multiplier(imperial_second)
         else:
-            kind = 'Walk'
+            kind = "Walk"
             raise KeyError
 
     # KeyError is only raised if the average minute is greater than 18
     # or less than 3 ( which, the 3:42 check would take care of that )
-    except (KeyError):
-        print('Didn\'t qualify for points')
-        print('-' * 28)
+    except KeyError:
+        print("Didn't qualify for points")
+        print("-" * 28)
         log_entry = LogEntry()
-        log_entry.date = today.strftime("%B %d, %Y")
-        log_entry.exercise_type = kind.upper()
-        log_entry.total = logging_time
-        log_entry.distance = distance
         log_entry.average = total_avg
+        log_entry.date = today.strftime("%B %d, %Y")
+        log_entry.distance = distance
+        log_entry.exercise = kind.upper()
+        log_entry.measuring = settings.measuring_type
         log_entry.points = 0
+        log_entry.total = logging_time
         logs.append_entry(log_entry)
         base_points = False
         # kind, and the xpliers aren't calculated if you were too slow
@@ -196,25 +197,22 @@ def second_multiplier(avg_second):
 def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
                    settings, s_xplier, today, total_avg):
 
-    if settings.measuring_type == 'I':
+    if settings.measuring_type == "I":
         total_points = round((base_points * distance) * (m_xplier + s_xplier))
-    elif settings.measuring_type == 'M':
-        # 0.62137 is metric to imperial
-        # imperial is used for points
-        total_points = round(base_points * (distance * 0.62137) *
-                                           (m_xplier + s_xplier))
+    elif settings.measuring_type == "M":
+        total_points = round(base_points * (distance * 0.62137) * (m_xplier + s_xplier))
 
-    print('You were placed in the {} category for points'.format(kind.lower()))
-    print('{} points were received!'.format(total_points))
-    print('-' * 28)
+    print("{} points were received!".format(total_points))
+    print("-" * 28)
 
     log_entry = LogEntry()
-    log_entry.date = today.strftime("%B %d, %Y")
-    log_entry.exercise_type = kind.upper()
-    log_entry.total = logging_time
-    log_entry.distance = distance
     log_entry.average = total_avg
+    log_entry.date = today.strftime("%B %d, %Y")
+    log_entry.distance = distance
+    log_entry.exercise = kind.upper()
+    log_entry.measuring = settings.measuring_type
     log_entry.points = total_points
+    log_entry.total = logging_time
 
     logs.append_entry(log_entry)
 
