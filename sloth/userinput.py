@@ -404,7 +404,7 @@ def measurement_change_converter(raw_value, *, activity):
     measurement = raw_value.strip()
     if measurement.upper() in ['Y', 'YES']:
         return True
-    elif measurement.upper() == ['N', 'NO']:
+    elif measurement.upper() in ['N', 'NO']:
         return False
     else:
         print("I'll take that as a no.")
