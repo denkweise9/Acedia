@@ -323,7 +323,15 @@ def settings_change(settings):
                                   activity=other_measurement)
     change_measurement = change_measurement_prompter.prompt()
 
+    # The international pound, used in the Imperial
+    # system is defined as exactly 0.45359237 kg
     if change_measurement:
+        if settings.measuring_type == "I":
+            settings.height = settings.height / 39.37007874
+            settings.weight = settings.weight * 0.45359237
+        elif settings.measuring_type == "M":
+            settings.height = int(settings.height * 39.37007874)
+            settings.weight = int(settings.weight / 0.45359237)
         settings.measuring_type = other_measuring_type
         settings.commit()
     else:
