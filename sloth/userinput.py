@@ -28,13 +28,13 @@ class Prompter(object):
         self.convert_kwargs = kwargs
         self.running = True
 
-    def prompt(self, _print=print):
+    def prompt(self, print=print):
         while True:
             raw_value = input(self.prompt_text)
             try:
                 value = self.convert(raw_value, **self.convert_kwargs)
             except ConversionFailed as e:
-                _print(e.failure_message)
+                self._print = e.failure_message
                 if not self.running:
                     break
             else:
@@ -391,3 +391,21 @@ def stats_str_converter(raw_value, *, activity):
             raise ConversionFailed('That\'s over the allowed amount (10)')
     except ValueError:
         raise ConversionFailed('Incorrect input')
+
+
+def measurement_change_prompter(activity):
+    return Prompter(
+        "Would you like to switch to {0}? (Y/N)".format(activity),
+        measurement_change_converter, activity=activity
+    )
+
+
+def measurement_change_converter(raw_value, *, activity):
+    measurement = raw_value.strip()
+    if measurement.upper() in ['Y', 'YES']:
+        return True
+    elif measurement.upper() == ['N', 'NO']:
+        return False
+    else:
+        print("I'll take that as a no.")
+        return False
