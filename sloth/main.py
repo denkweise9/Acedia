@@ -219,8 +219,7 @@ def hello(settings, logs, birthday_total, current_age, total_xp, level_):
     readline.set_completer(completer.complete)
     readline.parse_and_bind('tab: complete')
 
-    choose_check = False
-    while not choose_check:
+    while True:
         # because windows has to be special
         if sys.platform.startswith('win'):
             choose_extra = "(Tab for options)"
@@ -228,14 +227,13 @@ def hello(settings, logs, birthday_total, current_age, total_xp, level_):
             choose_extra = "(Double tab for options)"
         choose_ = input('What workout did you do? {0}: '.format(choose_extra))
         if choose_.capitalize() not in workouts.keys():
-            choose_check = False
+            pass
         else:
             if choose_.capitalize() == 'Cardio':
-                choose_check = True
                 cardio.main(choose_, settings, logs)
                 body_checks(settings, logs)
             else:
-                choose_check = True
+
                 physical.main(choose_, settings)
                 body_checks(settings, logs)
 
