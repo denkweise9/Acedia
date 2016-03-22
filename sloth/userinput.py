@@ -28,13 +28,13 @@ class Prompter(object):
         self.convert_kwargs = kwargs
         self.running = True
 
-    def prompt(self, print=print):
+    def prompt(self, _print=print):
         while True:
             raw_value = input(self.prompt_text)
             try:
                 value = self.convert(raw_value, **self.convert_kwargs)
             except ConversionFailed as e:
-                self._print = e.failure_message
+                _print(e.failure_message)
                 if not self.running:
                     break
             else:
