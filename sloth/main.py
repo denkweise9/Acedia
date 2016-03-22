@@ -156,6 +156,9 @@ def body_checks(settings, logs):
 
 def personal_checks(settings, logs, bmi):
 
+    if settings.sex not in ['F', 'M']:
+        raise Exception("You're neither female or male?")
+
     # make sure the stats total up to 26
     stat_list = [settings.agility, settings.charisma, settings.defense,
                  settings.endurance, settings.intelligence,
@@ -219,8 +222,7 @@ def hello(settings, logs, birthday_total, current_age, total_xp, level_):
     readline.set_completer(completer.complete)
     readline.parse_and_bind('tab: complete')
 
-    choose_check = False
-    while not choose_check:
+    while True:
         # because windows has to be special
         if sys.platform.startswith('win'):
             choose_extra = "(Tab for options)"
@@ -228,50 +230,17 @@ def hello(settings, logs, birthday_total, current_age, total_xp, level_):
             choose_extra = "(Double tab for options)"
         choose_ = input('What workout did you do? {0}: '.format(choose_extra))
         if choose_.capitalize() not in workouts.keys():
-            choose_check = False
+            pass
         else:
             if choose_.capitalize() == 'Cardio':
-                choose_check = True
-                cardio.main(choose_, settings, logs)
-                body_checks(settings, logs)
+                cardio.main(settings, logs)
+            elif choose_.capitalize() == 'Log':
+                print("Not yet done")
+            elif choose_.capitalize() == 'Settings':
+                settings_change(settings)
             else:
-                choose_check = True
                 physical.main(choose_, settings)
-                body_checks(settings, logs)
-
-
-def deteriorate(settings, logs):
-    last_entry = logs.load_last_entry()
-    if last_entry is None:
-        return
-
-    last_date = datetime.datetime.strptime(last_entry.date, '%B %d, %Y')
-    today = datetime.datetime.today()
-    deteriorate = today - last_date
-    multiple_remove = int(deteriorate.days / 7)
-
-    if multiple_remove >= 1 and settings.xp * 0.8 > 199.20000000000002:
-        previous_xp = settings.xp
-        for each in range(multiple_remove):
-            total_xp = int(settings.xp)
-            total_lost = round(total_xp * 0.2)
-            settings.xp = round(total_xp * 0.8)
-
-            deter_entry = LogEntry()
-
-            deter_entry.date = today.strftime("%B %d, %Y")
-            deter_entry.exercise_type = "DETERIORATE"
-            deter_entry.total = total_lost
-            deter_entry.distance = 0
-            deter_entry.average = 0
-            deter_entry.points = 0
-
-            logs.append_entry(deter_entry)
-            settings.commit()
-        xp_lost = previous_xp - settings.xp
-        print('Due to not logging anything for at least 7 days...')
-        print('You\'ve lost {0} (20%) XP. Your XP is now {1}'.format(
-               xp_lost, settings.xp))
+            body_checks(settings, logs)
 
 
 def check_xp(logs, settings):
@@ -299,3 +268,63 @@ def level(total_xp):
                    66750, 74000, 82250, 90750]
     i = bisect.bisect(breakpoints, total_xp)
     return i + 1
+
+
+def deteriorate(settings, logs):
+    last_entry = logs.load_last_entry()
+    if last_entry is None:
+        return
+
+    last_date = datetime.datetime.strptime(last_entry.date, '%B %d, %Y')
+    today = datetime.datetime.today()
+    deteriorate = today - last_date
+    multiple_remove = int(deteriorate.days / 7)
+
+    if multiple_remove >= 1 and settings.xp * 0.8 > 199.20000000000002:
+        previous_xp = settings.xp
+        for each in range(multiple_remove):
+            total_xp = int(settings.xp)
+            total_lost = round(total_xp * 0.2)
+            settings.xp = round(total_xp * 0.8)
+
+            deter_entry = LogEntry()
+
+            deter_entry.average = 0
+            deter_entry.date = today.strftime("%B %d, %Y")
+            deter_entry.distance = 0
+            deter_entry.exercise = "DETERIORATE"
+            deter_entry.measuring = settings.measuring_type
+            deter_entry.points = 0
+            deter_entry.total = total_lost
+
+            logs.append_entry(deter_entry)
+            settings.commit()
+        xp_lost = previous_xp - settings.xp
+        print('Due to not logging anything for {0} days...'.format(
+               deteriorate.days))
+        print('You\'ve lost {0} XP. Your XP is now {1}'.format(
+               xp_lost, settings.xp))
+
+
+def settings_change(settings):
+    if settings.measuring_type == "I":
+        other_measuring_type = "M"
+        current_measurement = "imperial"
+        other_measurement = "metric"
+    else:
+        other_measuring_type = "I"
+        current_measurement = "metric"
+        other_measurement = "imperial"
+
+    print("You are currently using {0} for measurment.".format(
+           current_measurement))
+
+    change_measurement_prompter = userinput.measurement_change_prompter(
+                                  activity=other_measurement)
+    change_measurement = change_measurement_prompter.prompt()
+
+    if change_measurement:
+        settings.measuring_type = other_measuring_type
+        settings.commit()
+    else:
+        pass

@@ -204,8 +204,10 @@ def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
         total_points = round(base_points * (distance * 0.62137) *
                                            (m_xplier + s_xplier))
 
-    print("{} points were received!".format(total_points))
-    print("-" * 28)
+    point_print = "{} points were received!".format(total_points)
+    dashes = int(len(point_print)) + 1
+    print(point_print)
+    print("-" * dashes)
 
     log_entry = LogEntry()
     log_entry.average = total_avg
