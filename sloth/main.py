@@ -231,11 +231,9 @@ def hello(settings, logs, birthday_total, current_age, total_xp, level_):
         else:
             if choose_.capitalize() == 'Cardio':
                 cardio.main(choose_, settings, logs)
-                body_checks(settings, logs)
             else:
-
                 physical.main(choose_, settings)
-                body_checks(settings, logs)
+            body_checks(settings, logs)
 
 
 def deteriorate(settings, logs):
@@ -257,18 +255,20 @@ def deteriorate(settings, logs):
 
             deter_entry = LogEntry()
 
-            deter_entry.date = today.strftime("%B %d, %Y")
-            deter_entry.exercise_type = "DETERIORATE"
-            deter_entry.total = total_lost
-            deter_entry.distance = 0
             deter_entry.average = 0
+            deter_entry.date = today.strftime("%B %d, %Y")
+            deter_entry.distance = 0
+            deter_entry.exercise = "DETERIORATE"
+            deter_entry.measuring = settings.measuring_type
             deter_entry.points = 0
+            deter_entry.total = total_lost
 
             logs.append_entry(deter_entry)
             settings.commit()
         xp_lost = previous_xp - settings.xp
-        print('Due to not logging anything for at least 7 days...')
-        print('You\'ve lost {0} (20%) XP. Your XP is now {1}'.format(
+        print('Due to not logging anything for {0} days...'.format(
+               deteriorate.days))
+        print('You\'ve lost {0} XP. Your XP is now {1}'.format(
                xp_lost, settings.xp))
 
 
