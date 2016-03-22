@@ -156,6 +156,9 @@ def body_checks(settings, logs):
 
 def personal_checks(settings, logs, bmi):
 
+    if settings.sex not in ['F', 'M']:
+        raise Exception("You're neither female or male?")
+
     # make sure the stats total up to 26
     stat_list = [settings.agility, settings.charisma, settings.defense,
                  settings.endurance, settings.intelligence,
@@ -230,10 +233,41 @@ def hello(settings, logs, birthday_total, current_age, total_xp, level_):
             pass
         else:
             if choose_.capitalize() == 'Cardio':
-                cardio.main(choose_, settings, logs)
+                cardio.main(settings, logs)
+            elif choose_.capitalize() == 'Log':
+                print("Not yet done")
+            elif choose_.capitalize() == 'Settings':
+                settings_change(settings)
             else:
                 physical.main(choose_, settings)
             body_checks(settings, logs)
+
+
+def check_xp(logs, settings):
+    logpoints = logs.check_log()
+
+    if logpoints is None:
+        if settings.xp != 0:
+            settings.xp = 0
+            settings.commit()
+        return
+    else:
+        total_points, losing_points = logpoints
+        log_total = sum(total_points) - sum(losing_points)
+
+    if settings.xp == log_total:
+        pass
+    else:
+        settings.xp = log_total
+        settings.commit()
+
+
+def level(total_xp):
+    breakpoints = [250, 500, 2000, 3750, 5750, 8250, 11000, 14250, 17750,
+                   21750, 26000, 30750, 35750, 41250, 47000, 53250, 59750,
+                   66750, 74000, 82250, 90750]
+    i = bisect.bisect(breakpoints, total_xp)
+    return i + 1
 
 
 def deteriorate(settings, logs):
@@ -272,28 +306,25 @@ def deteriorate(settings, logs):
                xp_lost, settings.xp))
 
 
-def check_xp(logs, settings):
-    logpoints = logs.check_log()
-
-    if logpoints is None:
-        if settings.xp != 0:
-            settings.xp = 0
-            settings.commit()
-        return
+def settings_change(settings):
+    if settings.measuring_type == "I":
+        other_measuring_type = "M"
+        current_measurement = "imperial"
+        other_measurement = "metric"
     else:
-        total_points, losing_points = logpoints
-        log_total = sum(total_points) - sum(losing_points)
+        other_measuring_type = "I"
+        current_measurement = "metric"
+        other_measurement = "imperial"
 
-    if settings.xp == log_total:
-        pass
-    else:
-        settings.xp = log_total
+    print("You are currently using {0} for measurment.".format(
+           current_measurement))
+
+    change_measurement_prompter = userinput.measurement_change_prompter(
+                                  activity=other_measurement)
+    change_measurement = change_measurement_prompter.prompt()
+
+    if change_measurement:
+        settings.measuring_type = other_measuring_type
         settings.commit()
-
-
-def level(total_xp):
-    breakpoints = [250, 500, 2000, 3750, 5750, 8250, 11000, 14250, 17750,
-                   21750, 26000, 30750, 35750, 41250, 47000, 53250, 59750,
-                   66750, 74000, 82250, 90750]
-    i = bisect.bisect(breakpoints, total_xp)
-    return i + 1
+    else:
+        pass
