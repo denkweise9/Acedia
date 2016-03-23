@@ -245,7 +245,7 @@ def hello(settings, logs, birthday_total, current_age, total_xp, level_):
                 settings_change(settings)
             else:
                 physical.main(choose_, settings)
-            body_checks(settings, logs)
+            body_checks(settings)
 
 
 def check_xp(logs, settings):
