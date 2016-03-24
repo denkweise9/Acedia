@@ -3,13 +3,13 @@
 # Autocomplete taken from
 # https://stackoverflow.com/questions/7821661/how-to-code-autocompletion-in-python
 #
-from dateutil.relativedelta import relativedelta
 
 import bisect
 import datetime
 import os
 import readline
 import sys
+from dateutil.relativedelta import relativedelta
 from sloth import cardio
 from sloth import physical
 from sloth import userinput
@@ -17,8 +17,8 @@ from sloth.store import LogEntry
 from sloth.store import LogsStore
 from sloth.workouts import workouts
 
-# The directory this program is running from
-main_dir = os.getcwd()
+# User dir
+main_dir = os.path.expanduser("~") 
 
 # Saved exercises
 logs_path = os.path.join(main_dir, 'log.ini')

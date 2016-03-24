@@ -5,8 +5,8 @@ import sys
 from sloth import main
 from sloth.store import SettingsStore
 
-# The directory this program is running from
-main_dir = os.getcwd()
+# User dir
+main_dir = os.path.expanduser("~")
 
 # File where all info on user is stored
 settings_path = os.path.join(main_dir, 'settings.ini')
