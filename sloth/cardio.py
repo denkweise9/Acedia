@@ -8,8 +8,7 @@ from sloth.workouts import cardio_xplier_dict
 from sloth.workouts import workouts
 
 
-def main(choose_, settings, logs):
-
+def main(settings, logs):
     distance = distance_info(settings)
 
     time_prompter = userinput.cardio_time_prompter(activity=None)
@@ -26,7 +25,7 @@ def main(choose_, settings, logs):
     # is if you said you could run a mile faster than 3:43
     # This was previously set to "False",
     # but that means it would be triggered if the seconds were 00
-    if imperial_second == -1:
+    if imperial_second == None:
         return
 
     imperial_minute, imperial_second, total_avg = average_log(avg_metric,
@@ -97,9 +96,9 @@ def average_time(settings, time_strp, distance):
     imperial_second = round(imperial_first_divmod[1])
 
     if not imperial_hour and imperial_minute <= 3 and imperial_second <= 42:
-        # this is the only time imperial_second = -1
+        # this is the only time imperial_second = None
         # fails the check, and gets kicked back into main()
-        imperial_second = -1
+        imperial_second = None
         print("You can run faster than Hicham El Guerrouj?")
         print("-" * 28)
     return (avg_metric, imperial_hour, imperial_minute, imperial_second,
@@ -197,7 +196,6 @@ def second_multiplier(avg_second):
 
 def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
                    settings, s_xplier, today, total_avg):
-
     if settings.measuring_type == "I":
         total_points = round((base_points * distance) * (m_xplier + s_xplier))
     elif settings.measuring_type == "M":
