@@ -3,7 +3,7 @@
 import os
 import sys
 from sloth import main
-from sloth.store import SettingsStore, LogsStore
+from sloth.store import SettingsStore
 
 # The directory this program is running from
 main_dir = os.getcwd()
@@ -11,16 +11,12 @@ main_dir = os.getcwd()
 # File where all info on user is stored
 settings_path = os.path.join(main_dir, 'settings.ini')
 
-# Saved exercises
-logs_path = os.path.join(main_dir, 'log.ini')
-
 
 def run():
-
     try:
-        if sys.platform.startswith('cygwin') or sys.platform.startswith('win'):
+        if sys.platform.startswith(('cygwin', 'win')):
             try:
-                import pyreadline as readline  # noqa
+                import pyreadline as readline # noqa
             except ImportError:
                 print('Please \'pip install pyreadline\' in your virtualenv.')
                 sys.exit()
@@ -31,8 +27,7 @@ def run():
             # If it does, start the main program.
             try:
                 settings.load()
-                logs = LogsStore(logs_path)
-                main.body_checks(settings, logs)
+                main.body_checks(settings)
             except ValueError:
                 main.initial_questions(settings)
         else:

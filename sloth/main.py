@@ -7,14 +7,21 @@ from dateutil.relativedelta import relativedelta
 
 import bisect
 import datetime
+import os
 import readline
 import sys
-
 from sloth import cardio
 from sloth import physical
 from sloth import userinput
 from sloth.store import LogEntry
+from sloth.store import LogsStore
 from sloth.workouts import workouts
+
+# The directory this program is running from
+main_dir = os.getcwd()
+
+# Saved exercises
+logs_path = os.path.join(main_dir, 'log.ini')
 
 
 def initial_questions(settings):
@@ -98,7 +105,7 @@ def initial_stats(settings, name, age, sex, measurement_system, weight,
 
     settings.commit()
 
-    print('Please re-run the game to get started.')
+    body_checks(settings)
 
 
 # Custom completer
@@ -124,14 +131,12 @@ class MyCompleter(object):
             return None
 
 
-def body_checks(settings, logs):
+def body_checks(settings):
 
     # check if imperial
     if settings.measuring_type == 'I':
         # height_format = '''{0:.0f}'{1:.0f}"'''.format(
         #                    *divmod(int(settings.height), 12))
-
-        # bmi
         bmi = round((settings.weight / settings.height ** 2) * 703.0, 2)
         if not 50 < settings.weight < 1000:
             raise Exception("Pretty sure {}'s not your real weight.".format(
@@ -140,8 +145,6 @@ def body_checks(settings, logs):
     # check if metric
     elif settings.measuring_type == 'M':
         # height_format = '''{0}m'''.format(settings.height)
-
-        # bmi
         bmi = round(settings.weight / (settings.height ** 2), 2)
         if not 22.679 < settings.weight < 453.592:
             raise Exception("Pretty sure {}'s not your real weight.".format(
@@ -151,10 +154,12 @@ def body_checks(settings, logs):
         raise Exception('Unexpected units type {0!r}'.format(
                          settings.measuring_type))
 
-    personal_checks(settings, logs, bmi)
+    logs = LogsStore(logs_path)
+
+    personal_checks(bmi, logs, settings)
 
 
-def personal_checks(settings, logs, bmi):
+def personal_checks(bmi, logs, settings):
 
     if settings.sex not in ['F', 'M']:
         raise Exception("You're neither female or male?")
@@ -240,7 +245,7 @@ def hello(settings, logs, birthday_total, current_age, total_xp, level_):
                 settings_change(settings)
             else:
                 physical.main(choose_, settings)
-            body_checks(settings, logs)
+            body_checks(settings)
 
 
 def check_xp(logs, settings):
