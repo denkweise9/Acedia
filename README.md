@@ -15,7 +15,8 @@ The stronger YOU get, the stronger your character gets.
   
 ### FAQ  
 - WHERE ARE MY SETTINGS/LOGS?
-    - They're stored in the directory you were in when you started the program.  
+    - They're stored in your home/user directory
+    - for example /home/user or C:\Users\USERNAME  
 - What operating systems are supported?  
     - The following have been tested:  
         - GNU/Linux: Arch, Debian 8, Fedora 23, Ubuntu 14.04 LTS  
