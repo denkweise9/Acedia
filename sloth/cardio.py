@@ -2,7 +2,6 @@
 
 import arrow
 import bisect
-import datetime
 from sloth import userinput
 from sloth.store import LogEntry
 from sloth.workouts import cardio_xplier_dict
@@ -15,7 +14,7 @@ def main(settings, logs):
     time_prompter = userinput.cardio_time_prompter(activity=None)
     time_strp = time_prompter.prompt()
 
-    today = datetime.date.today()
+    today = arrow.now().naive
 
     (avg_metric, imperial_hour, imperial_minute, imperial_second,
      metric_hour, metric_minute, metric_second) = average_time(settings,
