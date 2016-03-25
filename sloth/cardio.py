@@ -2,7 +2,6 @@
 
 import arrow
 import bisect
-import datetime
 from sloth import userinput
 from sloth.store import LogEntry
 from sloth.workouts import cardio_xplier_dict
@@ -15,7 +14,7 @@ def main(settings, logs):
     time_prompter = userinput.cardio_time_prompter(activity=None)
     time_strp = time_prompter.prompt()
 
-    today = datetime.date.today()
+    today = arrow.now().naive
 
     (avg_metric, imperial_hour, imperial_minute, imperial_second,
      metric_hour, metric_minute, metric_second) = average_time(settings,
@@ -208,6 +207,8 @@ def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
     print(point_print)
     print("-" * dashes)
 
+    utcnow = arrow.utcnow()
+
     log_entry = LogEntry()
     log_entry.average = total_avg
     log_entry.date = today.strftime("%B %d, %Y")
@@ -216,9 +217,9 @@ def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
     log_entry.measuring = settings.measuring_type
     log_entry.points = total_points
     log_entry.total = logging_time
-    log_entry.utc = arrow.utcnow().timestamp
-    # a = arrow.utcnow().timestamp
-    # a.replace(tzinfo=tz.tzlocal()).format('YYYY-MM-DD HH:mm:ss ZZ')
+    log_entry.utc = utcnow.timestamp
+
+    # local_format = utcnow.to('local').format('YYYY-MM-DD HH:mm:ss ZZ')
 
     logs.append_entry(log_entry)
 
