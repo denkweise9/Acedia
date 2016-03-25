@@ -4,8 +4,8 @@
 # https://stackoverflow.com/questions/7821661/how-to-code-autocompletion-in-python
 #
 
+import arrow
 import bisect
-import datetime
 import os
 import readline
 import sys
@@ -178,14 +178,14 @@ def personal_checks(bmi, logs, settings):
 
     bday_ = settings.age.split('-')
     # [0] is year, [1] is month, [2] is day.
-    year_, month_, day_ = int(bday_[0]), int(bday_[1]), int(bday_[2])
+    year_, month_, day_ = [int(i) for i in bday_]
 
     try:
-        birthday = datetime.datetime(year_, month_, day_)
+        birthday = arrow.get(year_, month_, day_)
     except ValueError:
         raise Exception('The birthday in your settings file is not possible.')
 
-    birthday_total = relativedelta(datetime.datetime.today(), birthday)
+    birthday_total = relativedelta(arrow.now().naive, birthday.naive)
     current_age = birthday_total.years
 
     # if log xp and settings.xp don't match, take the xp from the logs
@@ -280,30 +280,34 @@ def deteriorate(settings, logs):
     if last_entry is None:
         return
 
-    last_date = datetime.datetime.strptime(last_entry.date, '%B %d, %Y')
-    today = datetime.datetime.today()
-    deteriorate = today - last_date
+    last_utc = last_entry.utc
+    utc_to_arrow = arrow.get(last_utc)
+    today = arrow.now()
+    deteriorate = today - utc_to_arrow
     multiple_remove = int(deteriorate.days / 7)
 
     if multiple_remove >= 1 and settings.xp * 0.8 > 199.20000000000002:
         previous_xp = settings.xp
+        utcnow = arrow.utcnow().timestamp
         for each in range(multiple_remove):
             total_xp = int(settings.xp)
-            total_lost = round(total_xp * 0.2)
-            settings.xp = round(total_xp * 0.8)
+            if total_xp >= 199.20000000000002:
+                total_lost = round(total_xp * 0.2)
+                settings.xp = round(total_xp * 0.8)
 
-            deter_entry = LogEntry()
+                deter_entry = LogEntry()
 
-            deter_entry.average = 0
-            deter_entry.date = today.strftime("%B %d, %Y")
-            deter_entry.distance = 0
-            deter_entry.exercise = "DETERIORATE"
-            deter_entry.measuring = settings.measuring_type
-            deter_entry.points = 0
-            deter_entry.total = total_lost
+                deter_entry.average = 0
+                deter_entry.date = today.strftime("%B %d, %Y")
+                deter_entry.distance = 0
+                deter_entry.exercise = "DETERIORATE"
+                deter_entry.measuring = settings.measuring_type
+                deter_entry.points = 0
+                deter_entry.total = total_lost
+                deter_entry.utc = utcnow
 
-            logs.append_entry(deter_entry)
-            settings.commit()
+                logs.append_entry(deter_entry)
+                settings.commit()
         xp_lost = previous_xp - settings.xp
         print('Due to not logging anything for {0} days...'.format(
                deteriorate.days))
