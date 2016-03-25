@@ -176,10 +176,11 @@ class LogEntry(object):
     measuring = _storage_property("Measuring")
     points = _storage_property("Points")
     total = _storage_property("Total")
+    utc = _storage_property("UTC")
 
     expected_keys = frozenset([
         "Average", "Date", "Distance", "Exercise",
-        "Measuring", "Points", "Total",
+        "Measuring", "Points", "Total", "UTC"
     ])
 
     def __init__(self, _store=None):

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import arrow
 import bisect
 import datetime
 from sloth import userinput
@@ -215,6 +216,9 @@ def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
     log_entry.measuring = settings.measuring_type
     log_entry.points = total_points
     log_entry.total = logging_time
+    log_entry.utc = arrow.utcnow().timestamp
+    # a = arrow.utcnow().timestamp
+    # a.replace(tzinfo=tz.tzlocal()).format('YYYY-MM-DD HH:mm:ss ZZ')
 
     logs.append_entry(log_entry)
 
