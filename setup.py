@@ -19,17 +19,16 @@ setup(
     # TODO: add author info
     #author='',
     #author_email='',
-    url='https://github.com/Lvl4Sword/Sloth/',
+    url='https://bitbucket.org/pride/sloth/',
     # TODO: add keywords
     #keywords='',
-    install_requires = ['python-dateutil'],
+    install_requires = ['python-dateutil', 'arrow'],
     classifiers = [
         "License :: OSI Approved :: GNU Affero General Public License v3"
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: Microsoft :: Windows",
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
     ],
