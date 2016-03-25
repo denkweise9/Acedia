@@ -217,6 +217,8 @@ def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
     log_entry.points = total_points
     log_entry.total = logging_time
     log_entry.utc = arrow.utcnow().timestamp
+    # a = arrow.utcnow().timestamp
+    # a.replace(tzinfo=tz.tzlocal()).format('YYYY-MM-DD HH:mm:ss ZZ')
 
     logs.append_entry(log_entry)
 
