@@ -298,7 +298,6 @@ def deteriorate(settings, logs):
                 deter_entry = LogEntry()
 
                 deter_entry.average = 0
-                deter_entry.date = today.strftime("%B %d, %Y")
                 deter_entry.distance = 0
                 deter_entry.exercise = "DETERIORATE"
                 deter_entry.measuring = settings.measuring_type
