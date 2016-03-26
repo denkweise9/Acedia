@@ -169,14 +169,15 @@ def did_i_get_points(distance, imperial_minute, imperial_second, logging_time,
     except KeyError:
         print("Didn't qualify for points")
         print("-" * 28)
+        utcnow = arrow.utcnow()
         log_entry = LogEntry()
         log_entry.average = total_avg
-        log_entry.date = today.strftime("%B %d, %Y")
         log_entry.distance = distance
         log_entry.exercise = kind.upper()
         log_entry.measuring = settings.measuring_type
         log_entry.points = 0
         log_entry.total = logging_time
+        log_entry.utc = utcnow.timestamp
         logs.append_entry(log_entry)
         base_points = False
         # kind, and the xpliers aren't calculated if you were too slow
@@ -211,7 +212,6 @@ def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
 
     log_entry = LogEntry()
     log_entry.average = total_avg
-    log_entry.date = today.strftime("%B %d, %Y")
     log_entry.distance = distance
     log_entry.exercise = kind.upper()
     log_entry.measuring = settings.measuring_type
