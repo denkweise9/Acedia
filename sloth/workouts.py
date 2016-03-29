@@ -1,3 +1,5 @@
+# Copyright 2015, 2016 Scott King
+#
 # This file is part of Sloth.
 #
 # Sloth is free software: you can redistribute it and/or modify
@@ -12,6 +14,7 @@
 #
 # You should have received a copy of the Affero GNU General Public License
 # along with Sloth.  If not, see <http://www.gnu.org/licenses/>.
+#
 cardio_xplier_dict = {'Run': {9: 0.5, 8: 0.7, 7: 0.9, 6: 1.1, 5: 1.3, 4: 1.5, 3: 1.7},
                       'Jog': {14: 0.2, 13: 0.4, 12: 0.6, 11: 0.8, 10: 0.95},
                       'Walk': {18: 0.20, 17: 0.25, 16: 0.3, 15: 0.35}}
