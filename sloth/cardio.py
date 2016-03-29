@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+# Copyright 2015, 2016 Scott King
+#
 # This file is part of Sloth.
 #
 # Sloth is free software: you can redistribute it and/or modify
@@ -13,6 +14,7 @@
 #
 # You should have received a copy of the Affero GNU General Public License
 # along with Sloth.  If not, see <http://www.gnu.org/licenses/>.
+#
 import arrow
 import bisect
 from sloth import userinput
