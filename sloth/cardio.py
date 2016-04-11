@@ -165,12 +165,12 @@ def log_time(time_strp):
 def did_i_get_points(distance, imperial_minute, imperial_second, logging_time,
                      logs, settings, today, total_avg):
     try:
-        if 3 <= imperial_minute <= 18:
+        if 3 <= imperial_minute <= 28:
             if 3 <= imperial_minute <= 9:
                 kind = "Run"
-            elif 10 <= imperial_minute <= 14:
+            elif 10 <= imperial_minute <= 18:
                 kind = "Jog"
-            elif 15 <= imperial_minute <= 18:
+            elif 19 <= imperial_minute <= 28:
                 kind = "Walk"
             base_points = workouts["Cardio"][kind]
             m_xplier = cardio_xplier_dict[kind][imperial_minute]
