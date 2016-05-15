@@ -7,6 +7,9 @@ The stronger YOU get, the stronger your character gets.
   
 **SO GO OUT AND TRAIN SO YOU CAN SHOW NO MERCY TO YOUR ENEMIES!**  
   
+### What are your plans?
+- https://github.com/Lvl4Sword/Sloth/wiki/Vision
+  
 ### I want to help!
 - That's great! Feel free to take a look at the following:  
     - https://github.com/Lvl4Sword/Sloth/issues/ 
