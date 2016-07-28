@@ -235,33 +235,38 @@ def hello(settings, logs, birthday_total, current_age, total_xp, level_):
 
     print('Lvl {0}/XP {1}'.format(level_, total_xp))
 
-    # don't log for 7, 14, 21 days? you'll lose 20% for each 7 days.
-    deteriorate(settings, logs)
+    start_log = userinput.start_log_prompter.prompt()
+    if not start_log:
+        # don't log for 7, 14, 21 days? you'll lose 20% for each 7 days.
+        deteriorate(settings, logs)
+        log_exercise()
+    else:
+        log_exercise()
 
     completer = MyCompleter([str(k) for k in workouts])
     readline.set_completer(completer.complete)
     readline.parse_and_bind('tab: complete')
 
-    while True:
-        # because windows has to be special
-        if sys.platform.startswith('win'):
-            choose_extra = "(Tab for options)"
-        else:
-            choose_extra = "(Double tab for options)"
-        choose_ = input('What workout did you do? {0}: '.format(choose_extra))
-        if choose_.capitalize() not in workouts.keys():
-            pass
-        else:
-            if choose_.capitalize() == 'Cardio':
-                cardio.main(settings, logs)
-            elif choose_.capitalize() == 'Log':
-                print("Not yet done")
-            elif choose_.capitalize() == 'Settings':
-                settings_change(settings)
+    def log_exercise(settings, logs):
+        while True:
+            # because windows has to be special
+            if sys.platform.startswith('win'):
+                choose_extra = "(Tab for options)"
             else:
-                physical.main(choose_, settings)
-            body_checks(settings)
-
+                choose_extra = "(Double tab for options)"
+            choose_ = input('What workout did you do? {0}: '.format(choose_extra))
+            if choose_.capitalize() not in workouts.keys():
+                pass
+            else:
+                if choose_.capitalize() == 'Cardio':
+                    cardio.main(settings, logs)
+                elif choose_.capitalize() == 'Log':
+                    print("Not yet done")
+                elif choose_.capitalize() == 'Settings':
+                    settings_change(settings)
+                else:
+                    physical.main(choose_, settings)
+                body_checks(settings)
 
 def check_xp(logs, settings):
     logpoints = logs.check_log()
