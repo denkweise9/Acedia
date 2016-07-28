@@ -188,6 +188,23 @@ def imperial_body_height_prompter(raw_value):
         raise ConversionFailed('You can only use whole numbers.')
 
 
+@prompter_from_converter('Do you have anything to log before deterioration? (Y/N)')
+def start_log_prompter(raw_value):
+    try:
+        start_log = raw_value.lower()
+        if start_log in ['y', 'yes']:
+            return True
+        elif start_log in ['n', 'no']:
+            return False
+        else:
+            raise ConversionFailed(
+                "That wasn't a valid input, let's try again."
+            )
+
+    except ValueError:
+        raise ConversionFailed('You can only use whole numbers.')
+
+
 def cardio_time_prompter(activity):
     return Prompter(
         'How long did you go? (10:00/10:00:00)', cardio_time_converter,
