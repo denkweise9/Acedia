@@ -205,12 +205,27 @@ def start_log_prompter(raw_value):
         raise ConversionFailed('You can only use whole numbers.')
 
 
+def cardio_date_prompter(activity):
+    return Prompter(
+        'What day? (Format 1999-12-31) (Enter for today)', cardio_date_converter,
+        activity=None
+    )
+
+def cardio_date_converter(raw_value, activity=None):
+    try:
+        check_date = datetime.datetime.strptime(raw_value, "%Y-%m-%d").date()
+        return check_date
+    except ValueError:
+        if raw_value == '':
+            return False
+        else:
+            raise ConversionFailed('Format is 1999-12-31')    
+
 def cardio_time_prompter(activity):
     return Prompter(
         'How long did you go? (10:00/10:00:00)', cardio_time_converter,
         activity=activity
     )
-
 
 def cardio_time_converter(raw_value, activity=None):
     time_input = raw_value.strip()
