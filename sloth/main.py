@@ -217,10 +217,12 @@ def personal_checks(bmi, logs, settings):
     elif total_xp > 99749:
         raise Exception('XP is over 99749')
 
-    hello(settings, logs, birthday_total, current_age, total_xp, level_)
+    start_log = None
 
+    hello(settings, logs, birthday_total, current_age,
+          total_xp, level_, start_log)
 
-def log_exercise(settings, logs):
+def log_exercise(settings, logs, start_log):
     completer = MyCompleter([str(k) for k in workouts])
     readline.set_completer(completer.complete)
     readline.parse_and_bind('tab: complete')
@@ -246,8 +248,8 @@ def log_exercise(settings, logs):
             body_checks(settings)
 
 
-def hello(settings, logs, birthday_total, current_age, total_xp, level_):
-    start_log = userinput.start_log_prompter.prompt()
+def hello(settings, logs, birthday_total, current_age,
+          total_xp, level_, start_log):
 
     # there are no days, and only years meaning it's YOUR BIRTHDAY, WOO!
     if birthday_total.days == 0 and birthday_total.months == 0:
@@ -262,12 +264,20 @@ def hello(settings, logs, birthday_total, current_age, total_xp, level_):
 
     print('Lvl {0}/XP {1}'.format(level_, total_xp))
 
+    try:
+        if start_log == None:
+            start_log = userinput.start_log_prompter.prompt()
+        else:
+            pass
+    except NameError:
+        print('?')
+
     if not start_log:
         # don't log for 7, 14, 21 days? you'll lose 20% for each 7 days.
         deteriorate(settings, logs)
-        log_exercise(settings, logs)
+        log_exercise(settings, logs, start_log)
     else:
-        log_exercise(settings, logs)
+        log_exercise(settings, logs, start_log)
         deteriorate(settings, logs)
 
 
