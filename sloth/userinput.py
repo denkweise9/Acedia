@@ -15,446 +15,228 @@
 # You should have received a copy of the Affero GNU General Public License
 # along with Sloth.  If not, see <http://www.gnu.org/licenses/>.
 #
-import datetime
+import arrow
+import bisect
+from sloth import userinput
+from sloth.store import LogEntry
+from sloth.workouts import cardio_xplier_dict
+from sloth.workouts import workouts
 
 
-class ConversionFailed(Exception):
-    def __init__(self, message):
-        self.failure_message = message
+def main(settings, logs):
+    date_prompter = userinput.cardio_date_prompter(activity=None)
+    print(date_prompter.prompt())
 
+    distance = distance_info(settings)
 
-class Prompter(object):
-    """
-    A Prompter is an object with a `prompt` method that asks the user
-    for input, attempts to convert the value to something useful to
-    the application, and if the conversion fails, re-prompt the user.
+    time_prompter = userinput.cardio_time_prompter(activity=None)
+    time_strp = time_prompter.prompt()
 
+    (avg_metric, imperial_hour, imperial_minute, imperial_second,
+     metric_hour, metric_minute, metric_second) = average_time(settings,
+                                                               time_strp,
+                                                               distance)
 
-    A converter is a callable that takes a single string argument and
-    returns a validated value of the proper type needed by the
-    application, or raises `ConversionFailed` with a message suitable
-    to display to the user.
+    # The only time this would happen
+    # is if you said you could run a mile faster than 3:43
+    # This was previously set to "False",
+    # but that means it would be triggered if the seconds were 00
+    if imperial_second == None:
+        return
 
-    Extra kwargs passed to the constructor will be used to format the
-    prompt and passed into the converter.
-    """
-    def __init__(self, prompt_text_format, converter, **kwargs):
-        prompt_text = prompt_text_format.format(**kwargs)
-        self.prompt_text = '{0}: '.format(prompt_text)
-        self.convert = converter
-        self.convert_kwargs = kwargs
-        self.running = True
+    imperial_minute, imperial_second, total_avg = average_log(avg_metric,
+                                                              imperial_hour,
+                                                              imperial_minute,
+                                                              imperial_second,
+                                                              metric_hour,
+                                                              metric_minute,
+                                                              metric_second)
 
-    def prompt(self, _print=print):
-        while True:
-            raw_value = input(self.prompt_text)
-            try:
-                value = self.convert(raw_value, **self.convert_kwargs)
-            except ConversionFailed as e:
-                _print(e.failure_message)
-                if not self.running:
-                    break
-            else:
-                return value
+    log_hours, log_minutes, log_seconds, logging_time = log_time(time_strp)
 
+    base_points, kind, m_xplier, s_xplier = did_i_get_points(distance,
+                                                             imperial_minute,
+                                                             imperial_second,
+                                                             logging_time,
+                                                             logs,
+                                                             settings,
+                                                             total_avg)
 
-def prompter_from_converter(prompt_text):
-    """
-    Returns a function that turns a converter callable into a
-    `Prompter` instance. Intended to be used as a decorator.
-    """
-    def decorator(converter):
-        return Prompter(prompt_text, converter)
-    return decorator
-
-
-def integer_converter(value):
-    try:
-        return int(value)
-    except ValueError:
-        raise ConversionFailed('Please enter a whole number')
-
-
-@prompter_from_converter(
-    'Enter your first name (20 character limit)'
-)
-def first_name_prompter(raw_value):
-    name = raw_value.strip()
-    if len(name) > 20:
-        raise ConversionFailed("There's a 20 character limit...")
-    if len(name) == 0:
-        raise ConversionFailed("How were you expecting that to work?")
-    return name.capitalize()
-
-
-@prompter_from_converter(
-    'Enter your birthday (like 1999-12-31)'
-)
-def age_prompter(raw_value):
-    age = raw_value.strip()
-    try:
-        datetime.datetime.strptime(age, "%Y-%m-%d").date()
-    except ValueError:
-        raise ConversionFailed('Format is 1999-12-31')
-    return age
-
-
-@prompter_from_converter('Enter your sex (M/F)')
-def sex_prompter(raw_value):
-    sex = raw_value.strip()
-    if sex.upper() != 'M' and sex.upper() != 'F':
-        raise ConversionFailed("You didn't choose male or female.")
-    return sex.upper()
-
-
-@prompter_from_converter(
-    'What is your fitness goal?\n'
-    '1 for power lifting\n'
-    '2 for strength\n'
-    '3 for weight loss\n'
-    '4 for cardio'
-)
-def goal_prompter(raw_value):
-    goal = integer_converter(raw_value)
-    if goal not in [1, 2, 3, 4]:
-        raise ConversionFailed('Options are: 1/2/3/4')
-    return goal
-
-
-@prompter_from_converter('(I)mperial or (M)etric measurements?')
-def measurement_system_prompter(raw_value):
-    system = raw_value.strip()
-    if system.upper() == ('M'):
-        return 'M'
-    elif system.upper() == ('I'):
-        return 'I'
+    if not base_points:
+        return
     else:
-        raise ConversionFailed('Choose (M)etric or (I)mperial')
+        running_points(base_points, distance, kind, logging_time, logs,
+                       m_xplier, settings, s_xplier, total_avg)
 
 
-@prompter_from_converter('Enter weight in kilograms (float number)')
-def metric_body_weight_prompter(raw_value):
-    try:
-        weight = float(raw_value)
-        if weight <= 22.679:
-            raise ConversionFailed('Pretty sure that\'s not your real weight.')
-        elif weight >= 453.592:
-            raise ConversionFailed('I seriously doubt you\'re that big.')
+def distance_info(settings):
+    if settings.measuring_type == "I":
+        distance_prompter = userinput.cardio_distance_imperial_prompter(
+            activity=None)
+    elif settings.measuring_type == "M":
+        distance_prompter = userinput.cardio_distance_metric_prompter(
+            activity=None)
+    distance = distance_prompter.prompt()
+    return distance
+
+
+def average_time(settings, time_strp, distance):
+    if settings.measuring_type == "M":
+        avg_imperial = time_strp.total_seconds() / (distance / 1.609344)
+        avg_metric = time_strp.total_seconds() / distance
+        metric_first_divmod = divmod(avg_metric, 60)
+
+        if metric_first_divmod[0] >= 60:
+            metric_second_divmod = divmod(metric_first_divmod[0], 60)
+            metric_hour, metric_minute = round(metric_second_divmod)
         else:
-            return weight
-    except ValueError:
-        raise ConversionFailed('You can only put in a float (1.0) number.')
+            metric_hour = False
+            metric_minute = round(metric_first_divmod[0])
+
+        metric_second = round(metric_first_divmod[1])
+
+    elif settings.measuring_type == "I":
+        avg_imperial = time_strp.total_seconds() / distance
+        avg_metric = metric_hour = metric_minute = metric_second = False
+
+    imperial_first_divmod = divmod(avg_imperial, 60)
+
+    if imperial_first_divmod[0] >= 60:
+        imperial_second_divmod = divmod(imperial_first_divmod[0], 60)
+        imperial_hour = round(imperial_second_divmod[0])
+        imperial_minute = round(imperial_second_divmod[1])
+    else:
+        imperial_hour = False
+        imperial_minute = round(imperial_first_divmod[0])
+    imperial_second = round(imperial_first_divmod[1])
+
+    if not imperial_hour and imperial_minute <= 3 and imperial_second <= 42:
+        # this is the only time imperial_second = None
+        # fails the check, and gets kicked back into main()
+        imperial_second = None
+        print("You can run faster than Hicham El Guerrouj?")
+        print("-" * 28)
+    return (avg_metric, imperial_hour, imperial_minute, imperial_second,
+            metric_hour, metric_minute, metric_second)
 
 
-@prompter_from_converter('Enter height in meters (float number)')
-def metric_body_height_prompter(raw_value):
+def average_log(avg_metric, imperial_hour, imperial_minute, imperial_second,
+                metric_hour, metric_minute, metric_second):
     try:
-        height = float(raw_value)
-        if height <= 0.5:
-            raise ConversionFailed('Put in your real height, please.')
-        elif height >= 2.7:
-            raise ConversionFailed('Taller than the tallest person recorded?')
-        else:
-            return height
-    except ValueError:
-        raise ConversionFailed('You can only put in a float (1.0) number.')
-
-
-@prompter_from_converter('Enter weight in pounds (whole number)')
-def imperial_body_weight_prompter(raw_value):
-    try:
-        weight = int(raw_value)
-        if weight <= 50:
-            raise ConversionFailed('Pretty sure that\'s not your real weight.')
-        elif weight >= 1000:
-            raise ConversionFailed('I seriously doubt you\'re that big.')
-        else:
-            return weight
-    except ValueError:
-        raise ConversionFailed('You can only use whole numbers.')
-
-
-@prompter_from_converter('Enter height in inches (whole number)')
-def imperial_body_height_prompter(raw_value):
-    try:
-        height = int(raw_value)
-        if height <= 20:
-            raise ConversionFailed('Put in your real height, please.')
-        elif height >= 108:
-            raise ConversionFailed('Taller than the tallest person recorded?')
-        else:
-            return height
-    except ValueError:
-        raise ConversionFailed('You can only use whole numbers.')
-
-
-@prompter_from_converter('Do you have anything to log before deterioration? (Y/N)')
-def start_log_prompter(raw_value):
-    try:
-        start_log = raw_value.lower()
-        if start_log in ['y', 'yes']:
-            return True
-        elif start_log in ['n', 'no']:
-            return False
-        else:
-            raise ConversionFailed(
-                "That wasn't a valid input, let's try again."
-            )
-
-    except ValueError:
-        raise ConversionFailed('You can only use whole numbers.')
-
-
-def cardio_date_prompter(activity):
-    return Prompter(
-        'What day? (Format 1999-12-31) (Enter for today)', cardio_date_converter,
-        activity=None
-    )
-
-def cardio_date_converter(raw_value, activity=None):
-    try:
-        check_date = datetime.datetime.strptime(raw_value, "%Y-%m-%d").date()
-        return check_date
-    except ValueError:
-        if raw_value == '':
-            return False
-        else:
-            raise ConversionFailed('Format is 1999-12-31')    
-
-def cardio_time_prompter(activity):
-    return Prompter(
-        'How long did you go? (10:00/10:00:00)', cardio_time_converter,
-        activity=activity
-    )
-
-def cardio_time_converter(raw_value, activity=None):
-    time_input = raw_value.strip()
-    time_split = time_input.split(':')
-    try:
-        if len(time_split) == 2:
-            hours_ = 0
-            minutes_ = int(time_split[0])
-            seconds_ = int(time_split[1])
-        elif len(time_split) == 3:
-            hours_ = int(time_split[0])
-            minutes_ = int(time_split[1])
-            seconds_ = int(time_split[2])
+        if avg_metric:
+            if metric_hour:
+                total_avg = "{0:02d}:{1:02d}:{2:02d}".format(
+                    metric_hour, metric_minute, metric_second)
+            else:
+                total_avg = "{0:02d}:{1:02d}".format(
+                    metric_minute, metric_second)
         else:
             raise ValueError
-        time_strp = datetime.timedelta(hours=hours_,
-                                       minutes=minutes_,
-                                       seconds=seconds_)
-        if time_strp.total_seconds() <= 86399:
-            return time_strp
+    except ValueError:
+        if imperial_hour:
+            total_avg = "{0:02d}:{1:02d}:{2:02d}".format(imperial_hour,
+                                                         imperial_minute,
+                                                         imperial_second)
         else:
-            raise ConversionFailed("You can't put 24 hours+ as your time.")
-    except ValueError:
-        raise ConversionFailed(
-            'Only digits and ":" can be used. (10:00:00/10:00)'
-        )
+            total_avg = "{0:02d}:{1:02d}".format(
+                imperial_minute, imperial_second)
+    print("Your average time was {0}".format(total_avg))
+    return(imperial_minute, imperial_second, total_avg)
 
 
-def cardio_distance_imperial_prompter(activity):
-    return Prompter(
-        'How many miles? (mi to km is 1.609344)',
-        cardio_distance_imperial_converter,
-        activity=activity
-    )
+def log_time(time_strp):
+    log_divmod = divmod(time_strp.total_seconds(), 60)
 
-
-def cardio_distance_imperial_converter(raw_value, *, activity):
-    try:
-        distance = float(raw_value)
-    except (ValueError):
-        raise ConversionFailed(
-            'A whole ( 1 ) or float ( 1.0 ) number is required'
-        )
-    if distance >= 50.0:
-        raise ConversionFailed(
-            "Pretty sure you didn't go that far."
-        )
-    return distance
-
-
-def cardio_distance_metric_prompter(activity):
-    return Prompter(
-        'How many kilometers? (km to mi is 0.62137)',
-        cardio_distance_metric_converter,
-        activity=activity
-    )
-
-
-def cardio_distance_metric_converter(raw_value, *, activity):
-    try:
-        distance = float(raw_value)
-    except (ValueError):
-        raise ConversionFailed(
-            'A whole ( 1 ) or float ( 1.0 ) number is required'
-        )
-    if distance >= 80.467354394322222:
-        raise ConversionFailed(
-            "Pretty sure you didn't go that far."
-        )
-    return distance
-
-
-def stats_agi_prompter(activity):
-    activity = 26 - sum(activity)
-    return Prompter(
-        'Agility - Your reaction time (0/10) ({} left)'.format(activity),
-        stats_agi_converter, activity=activity
-    )
-
-
-def stats_agi_converter(raw_value, *, activity):
-    agility = raw_value.strip()
-    try:
-        if 0 <= int(agility) <= 10:
-            agility = int(agility)
-            return agility, 1
-        elif int(agility) > 10:
-            raise ConversionFailed('That\'s over the allowed amount (10)')
-    except ValueError:
-        raise ConversionFailed('Incorrect input')
-
-
-def stats_chr_prompter(activity):
-    activity = 26 - sum(activity)
-    return Prompter(
-        'Charisma - Influence over others ({} left)'.format(activity),
-        stats_chr_converter, activity=activity
-    )
-
-
-def stats_chr_converter(raw_value, *, activity):
-    charisma = raw_value.strip()
-    try:
-        if charisma == 'b':
-            return 0, 0
-        elif 0 <= int(charisma) <= 10:
-            charisma = int(charisma)
-            return charisma, 2
-        elif int(charisma) > 10:
-            raise ConversionFailed('That\'s over the allowed amount (10)')
-    except ValueError:
-        raise ConversionFailed('Incorrect input')
-
-
-def stats_def_prompter(activity):
-    activity = 26 - sum(activity)
-    return Prompter(
-        'Defense - How well you can take a punch ({} left)'.format(activity),
-        stats_def_converter, activity=activity
-    )
-
-
-def stats_def_converter(raw_value, *, activity):
-    defense = raw_value.strip()
-    try:
-        if defense == 'b':
-            return 0, 1
-        elif 0 <= int(defense) <= 10:
-            if activity - int(defense) <= 0:
-                raise ConversionFailed('You have no more points to use..')
-            else:
-                defense = int(defense)
-                return defense, 3
-        elif int(defense) > 10:
-            raise ConversionFailed('That\'s over the allowed amount (10)')
-    except ValueError:
-        raise ConversionFailed('Incorrect input')
-
-
-def stats_end_prompter(activity):
-    activity = 26 - sum(activity)
-    return Prompter(
-        'Endurance - Your overall health ({} left)'.format(activity),
-        stats_end_converter, activity=activity
-    )
-
-
-def stats_end_converter(raw_value, *, activity):
-    endurance = raw_value.strip()
-    try:
-        if endurance == 'b':
-            return 0, 2
-        elif 0 <= int(endurance) <= 10:
-            if activity - int(endurance) <= 0:
-                raise ConversionFailed('You have no more points to use..')
-            else:
-                endurance = int(endurance)
-                return endurance, 4
-        elif int(endurance) > 10:
-            raise ConversionFailed('That\'s over the allowed amount (10)')
-    except ValueError:
-        raise ConversionFailed('Incorrect input')
-
-
-def stats_int_prompter(activity):
-    activity = 26 - sum(activity)
-    return Prompter(
-        'Intelligence - Technical know-how ({} left)'.format(activity),
-        stats_int_converter, activity=activity
-    )
-
-
-def stats_int_converter(raw_value, *, activity):
-    intelligence = raw_value.strip()
-    try:
-        if intelligence == 'b':
-            return 0, 3
-        elif 0 <= int(intelligence) <= 10:
-            if activity - int(intelligence) <= 0:
-                raise ConversionFailed('You have no more points to use..')
-            else:
-                intelligence = int(intelligence)
-                return intelligence, 5
-        elif int(intelligence) > 10:
-            raise ConversionFailed('That\'s over the allowed amount (10)')
-    except ValueError:
-        raise ConversionFailed('Incorrect input')
-
-
-def stats_str_prompter(activity):
-    activity = 26 - sum(activity)
-    return Prompter(
-        'Strength - How well you can give a punch ({} left)'.format(activity),
-        stats_str_converter, activity=activity
-    )
-
-
-def stats_str_converter(raw_value, *, activity):
-    strength = raw_value.strip()
-    try:
-        if strength == 'b':
-            return 0, 4
-        elif 0 <= int(strength) <= 10:
-            if activity - int(strength) > 0:
-                raise ConversionFailed('You still have points to apply.')
-            elif activity - int(strength) == 0:
-                strength = int(strength)
-                return strength, 6
-            elif activity - int(strength) < 0:
-                raise ConversionFailed('You have no more points to use..')
-        elif int(strength) > 10:
-            raise ConversionFailed('That\'s over the allowed amount (10)')
-    except ValueError:
-        raise ConversionFailed('Incorrect input')
-
-
-def measurement_change_prompter(activity):
-    return Prompter(
-        "Would you like to switch to {0}? (Y/N)".format(activity),
-        measurement_change_converter, activity=activity
-    )
-
-
-def measurement_change_converter(raw_value, *, activity):
-    measurement = raw_value.strip()
-    if measurement.upper() in ['Y', 'YES']:
-        return True
-    elif measurement.upper() in ['N', 'NO']:
-        return False
+    if time_strp.total_seconds() >= 3600:
+        log_hours = round(log_divmod[0] / 60)
+        log_minutes = round(log_divmod[0] % 60)
+        log_seconds = round(log_divmod[1])
+        logging_time = ("{0:02d}:{1:02d}:{2:02d}".format(
+            log_hours, log_minutes, log_seconds))
     else:
-        print("I'll take that as a no.")
-        return False
+        log_hours = False
+        log_minutes = round(log_divmod[0])
+        log_seconds = round(log_divmod[1])
+        logging_time = ("{0:02d}:{1:02d}".format(
+            log_minutes, log_seconds))
+    return(log_hours, log_minutes, log_seconds, logging_time)
+
+
+def did_i_get_points(distance, imperial_minute, imperial_second, logging_time,
+                     logs, settings, total_avg):
+    try:
+        if 3 <= imperial_minute <= 28:
+            if 3 <= imperial_minute <= 9:
+                kind = "Run"
+            elif 10 <= imperial_minute <= 18:
+                kind = "Jog"
+            elif 19 <= imperial_minute <= 28:
+                kind = "Walk"
+            base_points = workouts["Cardio"][kind]
+            m_xplier = cardio_xplier_dict[kind][imperial_minute]
+            s_xplier = second_multiplier(imperial_second)
+        else:
+            kind = "Walk"
+            raise KeyError
+
+    # KeyError is only raised if the average minute is greater than 18
+    # or less than 3 ( which, the 3:42 check would take care of that )
+    except KeyError:
+        print("Didn't qualify for points")
+        print("-" * 28)
+        utcnow = arrow.utcnow()
+        log_entry = LogEntry()
+        log_entry.average = total_avg
+        log_entry.distance = distance
+        log_entry.exercise = kind.upper()
+        log_entry.measuring = settings.measuring_type
+        log_entry.points = 0
+        log_entry.total = logging_time
+        log_entry.utc = utcnow.timestamp
+        logs.append_entry(log_entry)
+        base_points = False
+        # kind, and the xpliers aren't calculated if you were too slow
+        # so since we have to return something, set them to False!
+        # base_points = False to ensure running_points isn't executed
+        return (False, False, False, False)
+    else:
+        return (base_points, kind, m_xplier, s_xplier)
+
+
+def second_multiplier(avg_second):
+    breakpoints = [15, 30, 45, 60]
+    s_xpliers = [0.2, 0.15, 0.10, 0.05]
+    i = bisect.bisect(breakpoints, avg_second)
+    return(s_xpliers[i])
+
+
+def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
+                   settings, s_xplier, total_avg):
+    if settings.measuring_type == "I":
+        total_points = round((base_points * distance) * (m_xplier + s_xplier))
+    elif settings.measuring_type == "M":
+        total_points = round(base_points * (distance * 0.62137) *
+                                           (m_xplier + s_xplier))
+
+    point_print = "{} points were received!".format(total_points)
+    dashes = int(len(point_print)) + 1
+    print(point_print)
+    print("-" * dashes)
+
+    utcnow = arrow.utcnow()
+
+    log_entry = LogEntry()
+    log_entry.average = total_avg
+    log_entry.distance = distance
+    log_entry.exercise = kind.upper()
+    log_entry.measuring = settings.measuring_type
+    log_entry.points = total_points
+    log_entry.total = logging_time
+    log_entry.utc = utcnow.timestamp
+
+    # local_format = utcnow.to('local').format('YYYY-MM-DD HH:mm:ss ZZ')
+
+    logs.append_entry(log_entry)
+
+    settings.xp = settings.xp + total_points
+    settings.commit()
