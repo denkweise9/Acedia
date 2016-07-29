@@ -202,7 +202,7 @@ def start_log_prompter(raw_value):
                 'That wasn\'t a valid input, let\'s try again.'
             )
     except ValueError:
-        raise ConversionFailed('You can only use whole numbers.')
+        raise ConversionFailed('That wasn\'t a valid input, let\'s try again.')
 
 
 def cardio_date_prompter(activity):
