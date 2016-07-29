@@ -15,6 +15,7 @@
 # You should have received a copy of the Affero GNU General Public License
 # along with Sloth.  If not, see <http://www.gnu.org/licenses/>.
 #
+import arrow
 import datetime
 
 
@@ -81,9 +82,9 @@ def integer_converter(value):
 def first_name_prompter(raw_value):
     name = raw_value.strip()
     if len(name) > 20:
-        raise ConversionFailed("There's a 20 character limit...")
+        raise ConversionFailed('There\'s a 20 character limit...')
     if len(name) == 0:
-        raise ConversionFailed("How were you expecting that to work?")
+        raise ConversionFailed('How were you expecting that to work?')
     return name.capitalize()
 
 
@@ -93,7 +94,7 @@ def first_name_prompter(raw_value):
 def age_prompter(raw_value):
     age = raw_value.strip()
     try:
-        datetime.datetime.strptime(age, "%Y-%m-%d").date()
+        datetime.datetime.strptime(age, '%Y-%m-%d').date()
     except ValueError:
         raise ConversionFailed('Format is 1999-12-31')
     return age
@@ -103,7 +104,7 @@ def age_prompter(raw_value):
 def sex_prompter(raw_value):
     sex = raw_value.strip()
     if sex.upper() != 'M' and sex.upper() != 'F':
-        raise ConversionFailed("You didn't choose male or female.")
+        raise ConversionFailed('You didn\'t choose male or female.')
     return sex.upper()
 
 
@@ -188,6 +189,88 @@ def imperial_body_height_prompter(raw_value):
         raise ConversionFailed('You can only use whole numbers.')
 
 
+@prompter_from_converter('Do you have anything to log before deterioration? (Y/N)')
+def start_log_prompter(raw_value):
+    try:
+        start_log = raw_value.lower()
+        if start_log in ['y', 'yes']:
+            return True
+        elif start_log in ['', 'n', 'no']:
+            return False
+        else:
+            raise ConversionFailed(
+                'That wasn\'t a valid input, let\'s try again.'
+            )
+    except ValueError:
+        raise ConversionFailed('You can only use whole numbers.')
+
+
+def cardio_date_prompter(activity):
+    return Prompter(
+        'What day? (Format 1999-12-31) (Enter for today)', cardio_date_converter,
+        activity=None
+    )
+
+
+def cardio_date_converter(raw_value, activity=None):
+    try:
+        initial_check_date = datetime.datetime.strptime(raw_value.strip(),
+                                                        '%Y-%m-%d').date()
+        check_date_strftime = datetime.date.strftime(check_date, '%Y-%m-%d')
+        return check_date_strftime
+    except ValueError:
+        if raw_value.strip() == '':
+            return datetime.datetime.now().strftime('%Y-%m-%d')
+        else:
+            raise ConversionFailed('Format is 1999-12-31')    
+
+
+def cardio_when_prompter(activity):
+    return Prompter(
+        'What time did you finish? (Format 20:30:15) (Enter for now)', cardio_when_converter,
+        activity=None
+    )
+
+
+def cardio_when_converter(raw_value, activity=None):
+    time_input = raw_value.strip()
+    time_split = time_input.split(':')
+    try:
+        if len(time_split) == 3:
+            hours_ = int(time_split[0])
+            minutes_ = int(time_split[1])
+            seconds_ = int(time_split[2])
+            when_seconds = datetime.timedelta(hours=hours_,
+                                              minutes=minutes_,
+                                              seconds=seconds_)
+            if when_seconds.total_seconds() <= 86399:
+                log_divmod = divmod(when_seconds.total_seconds(), 60)
+                when_hours = round(log_divmod[0] / 60)
+                when_minutes = round(log_divmod[0] % 60)
+                when_seconds = round(log_divmod[1])
+                when_time = ('{0:02d}, {1:02d}, {2:02d}'.format(when_hours,
+                                                                when_minutes,
+                                                                when_seconds))
+                return when_time
+            else:
+                raise ConversionFailed('There\'s only 24 hours in a day')
+        elif time_input == '':
+            current_time = arrow.now().time()
+            when_hours = current_time.hour
+            when_minutes = current_time.minute
+            when_seconds = current_time.second
+            when_time = ('{0:02d} {1:02d} {2:02d}'.format(when_hours,
+                                                          when_minutes,
+                                                          when_seconds))
+            return when_time
+        else:
+            raise ValueError
+    except ValueError:
+        raise ConversionFailed(
+            'Only digits and ":" can be used. (10:00:00)'
+        )
+
+
 def cardio_time_prompter(activity):
     return Prompter(
         'How long did you go? (10:00/10:00:00)', cardio_time_converter,
@@ -215,7 +298,7 @@ def cardio_time_converter(raw_value, activity=None):
         if time_strp.total_seconds() <= 86399:
             return time_strp
         else:
-            raise ConversionFailed("You can't put 24 hours+ as your time.")
+            raise ConversionFailed('You can\'t put 24 hours+ as your time.')
     except ValueError:
         raise ConversionFailed(
             'Only digits and ":" can be used. (10:00:00/10:00)'
@@ -239,7 +322,7 @@ def cardio_distance_imperial_converter(raw_value, *, activity):
         )
     if distance >= 50.0:
         raise ConversionFailed(
-            "Pretty sure you didn't go that far."
+            'Pretty sure you didn\'t go that far.'
         )
     return distance
 
@@ -261,7 +344,7 @@ def cardio_distance_metric_converter(raw_value, *, activity):
         )
     if distance >= 80.467354394322222:
         raise ConversionFailed(
-            "Pretty sure you didn't go that far."
+            'Pretty sure you didn\'t go that far.'
         )
     return distance
 
@@ -412,7 +495,7 @@ def stats_str_converter(raw_value, *, activity):
 
 def measurement_change_prompter(activity):
     return Prompter(
-        "Would you like to switch to {0}? (Y/N)".format(activity),
+        'Would you like to switch to {0}? (Y/N)'.format(activity),
         measurement_change_converter, activity=activity
     )
 
@@ -424,5 +507,5 @@ def measurement_change_converter(raw_value, *, activity):
     elif measurement.upper() in ['N', 'NO']:
         return False
     else:
-        print("I'll take that as a no.")
+        print('I\'ll take that as a no.')
         return False

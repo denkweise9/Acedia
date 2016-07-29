@@ -43,7 +43,10 @@ def run():
             # If it does, start the main program.
             try:
                 settings.load()
-                main.body_checks(settings)
+                # This is as early as we can set the deterioration question.
+                # This way it's only asked ONCE when you start the program.
+                start_log = None
+                main.body_checks(settings, start_log)
             except ValueError:
                 main.initial_questions(settings)
         else:

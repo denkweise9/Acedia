@@ -17,6 +17,7 @@
 #
 import arrow
 import bisect
+from dateutil import tz
 from sloth import userinput
 from sloth.store import LogEntry
 from sloth.workouts import cardio_xplier_dict
@@ -24,12 +25,30 @@ from sloth.workouts import workouts
 
 
 def main(settings, logs):
+
     distance = distance_info(settings)
 
     time_prompter = userinput.cardio_time_prompter(activity=None)
     time_strp = time_prompter.prompt()
 
-    today = arrow.now().naive
+    date_prompter = userinput.cardio_date_prompter(activity=None)
+    when_date = date_prompter.prompt()
+
+    when_prompter = userinput.cardio_when_prompter(activity=None)
+    when_time = when_prompter.prompt()
+
+    when_year, when_month, when_day = [int(i) for i in when_date.split('-')]
+    when_hour, when_minute, when_second = [int(i) for i in when_time.split()]
+    when_arrow = arrow.get(when_year,
+                           when_month,
+                           when_day,
+                           when_hour,
+                           when_minute,
+                           when_second)
+    now_arrow = arrow.now()
+    if not now_arrow > when_arrow:
+        print("You're wanting to log for the future?")
+        return
 
     (avg_metric, imperial_hour, imperial_minute, imperial_second,
      metric_hour, metric_minute, metric_second) = average_time(settings,
@@ -59,14 +78,14 @@ def main(settings, logs):
                                                              logging_time,
                                                              logs,
                                                              settings,
-                                                             today,
-                                                             total_avg)
+                                                             total_avg,
+                                                             when_arrow)
 
     if not base_points:
         return
     else:
         running_points(base_points, distance, kind, logging_time, logs,
-                       m_xplier, settings, s_xplier, today, total_avg)
+                       m_xplier, settings, s_xplier, total_avg, when_arrow)
 
 
 def distance_info(settings):
@@ -163,7 +182,7 @@ def log_time(time_strp):
 
 
 def did_i_get_points(distance, imperial_minute, imperial_second, logging_time,
-                     logs, settings, today, total_avg):
+                     logs, settings, total_avg, when_arrow):
     try:
         if 3 <= imperial_minute <= 28:
             if 3 <= imperial_minute <= 9:
@@ -184,7 +203,6 @@ def did_i_get_points(distance, imperial_minute, imperial_second, logging_time,
     except KeyError:
         print("Didn't qualify for points")
         print("-" * 28)
-        utcnow = arrow.utcnow()
         log_entry = LogEntry()
         log_entry.average = total_avg
         log_entry.distance = distance
@@ -192,7 +210,7 @@ def did_i_get_points(distance, imperial_minute, imperial_second, logging_time,
         log_entry.measuring = settings.measuring_type
         log_entry.points = 0
         log_entry.total = logging_time
-        log_entry.utc = utcnow.timestamp
+        log_entry.utc = when_arrow.timestamp
         logs.append_entry(log_entry)
         base_points = False
         # kind, and the xpliers aren't calculated if you were too slow
@@ -211,10 +229,12 @@ def second_multiplier(avg_second):
 
 
 def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
-                   settings, s_xplier, today, total_avg):
+                   settings, s_xplier, total_avg, when_arrow):
     if settings.measuring_type == "I":
         total_points = round((base_points * distance) * (m_xplier + s_xplier))
     elif settings.measuring_type == "M":
+        # Metric distance * 0.62137 will set the distance to miles.
+        # Imperial is what is used for points.
         total_points = round(base_points * (distance * 0.62137) *
                                            (m_xplier + s_xplier))
 
@@ -223,8 +243,6 @@ def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
     print(point_print)
     print("-" * dashes)
 
-    utcnow = arrow.utcnow()
-
     log_entry = LogEntry()
     log_entry.average = total_avg
     log_entry.distance = distance
@@ -232,9 +250,7 @@ def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
     log_entry.measuring = settings.measuring_type
     log_entry.points = total_points
     log_entry.total = logging_time
-    log_entry.utc = utcnow.timestamp
-
-    # local_format = utcnow.to('local').format('YYYY-MM-DD HH:mm:ss ZZ')
+    log_entry.utc = when_arrow.timestamp
 
     logs.append_entry(log_entry)
 
