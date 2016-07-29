@@ -120,7 +120,11 @@ def initial_stats(settings, name, age, sex, measurement_system, weight,
 
     settings.commit()
 
-    body_checks(settings)
+    # This is as early as we can set the deterioration question.
+    # This way it's only asked ONCE when you start the program.
+    start_log = None
+
+    body_checks(settings, start_log)
 
 
 # Custom completer
@@ -146,7 +150,7 @@ class MyCompleter(object):
             return None
 
 
-def body_checks(settings):
+def body_checks(settings, start_log):
 
     # check if imperial
     if settings.measuring_type == 'I':
@@ -171,10 +175,10 @@ def body_checks(settings):
 
     logs = LogsStore(logs_path)
 
-    personal_checks(bmi, logs, settings)
+    personal_checks(bmi, logs, settings, start_log)
 
 
-def personal_checks(bmi, logs, settings):
+def personal_checks(bmi, logs, settings, start_log):
 
     if settings.sex not in ['F', 'M']:
         raise Exception("You're neither female or male?")
@@ -217,8 +221,6 @@ def personal_checks(bmi, logs, settings):
     elif total_xp > 99749:
         raise Exception('XP is over 99749')
 
-    start_log = None
-
     hello(settings, logs, birthday_total, current_age,
           total_xp, level_, start_log)
 
@@ -245,7 +247,7 @@ def log_exercise(settings, logs, start_log):
                 settings_change(settings)
             else:
                 physical.main(choose_, settings)
-            body_checks(settings)
+            body_checks(settings, start_log)
 
 
 def hello(settings, logs, birthday_total, current_age,
@@ -264,13 +266,8 @@ def hello(settings, logs, birthday_total, current_age,
 
     print('Lvl {0}/XP {1}'.format(level_, total_xp))
 
-    try:
-        if start_log == None:
-            start_log = userinput.start_log_prompter.prompt()
-        else:
-            pass
-    except NameError:
-        print('?')
+    if start_log == None:
+        start_log = userinput.start_log_prompter.prompt()
 
     if not start_log:
         # don't log for 7, 14, 21 days? you'll lose 20% for each 7 days.
