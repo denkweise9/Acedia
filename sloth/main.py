@@ -224,6 +224,34 @@ def personal_checks(bmi, logs, settings, start_log):
     hello(settings, logs, birthday_total, current_age,
           total_xp, level_, start_log)
 
+
+def hello(settings, logs, birthday_total, current_age,
+          total_xp, level_, start_log):
+
+    # there are no days, and only years meaning it's YOUR BIRTHDAY, WOO!
+    if birthday_total.days == 0 and birthday_total.months == 0:
+        birthday_today = ' (HAPPY BIRTHDAY!)'
+    else:
+        birthday_today = ''
+    print('{0}/{1}/{2}{3}'.format(
+           settings.name,
+           settings.sex,
+           current_age,
+           birthday_today))
+
+    print('Lvl {0}/XP {1}'.format(level_, total_xp))
+
+    if start_log == None:
+        start_log = userinput.start_log_prompter.prompt()
+
+    if start_log:
+        # don't log for 7, 14, 21 days? you'll lose 20% for each 7 days.
+        log_exercise(settings, logs, start_log)
+        deteriorate(settings, logs)
+    else:
+        deteriorate(settings, logs)
+        log_exercise(settings, logs, start_log)
+
 def log_exercise(settings, logs, start_log):
     completer = MyCompleter([str(k) for k in workouts])
     readline.set_completer(completer.complete)
@@ -248,34 +276,6 @@ def log_exercise(settings, logs, start_log):
             else:
                 physical.main(choose_, settings)
             body_checks(settings, start_log)
-
-
-def hello(settings, logs, birthday_total, current_age,
-          total_xp, level_, start_log):
-
-    # there are no days, and only years meaning it's YOUR BIRTHDAY, WOO!
-    if birthday_total.days == 0 and birthday_total.months == 0:
-        birthday_today = ' (HAPPY BIRTHDAY!)'
-    else:
-        birthday_today = ''
-    print('{0}/{1}/{2}{3}'.format(
-           settings.name,
-           settings.sex,
-           current_age,
-           birthday_today))
-
-    print('Lvl {0}/XP {1}'.format(level_, total_xp))
-
-    if start_log == None:
-        start_log = userinput.start_log_prompter.prompt()
-
-    if not start_log:
-        # don't log for 7, 14, 21 days? you'll lose 20% for each 7 days.
-        deteriorate(settings, logs)
-        log_exercise(settings, logs, start_log)
-    else:
-        log_exercise(settings, logs, start_log)
-        deteriorate(settings, logs)
 
 
 def check_xp(logs, settings):
