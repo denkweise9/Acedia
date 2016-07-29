@@ -17,7 +17,6 @@
 #
 import arrow
 import bisect
-import datetime
 from dateutil import tz
 from sloth import userinput
 from sloth.store import LogEntry
@@ -79,13 +78,14 @@ def main(settings, logs):
                                                              logging_time,
                                                              logs,
                                                              settings,
-                                                             total_avg)
+                                                             total_avg,
+                                                             when_arrow)
 
     if not base_points:
         return
     else:
         running_points(base_points, distance, kind, logging_time, logs,
-                       m_xplier, settings, s_xplier, total_avg)
+                       m_xplier, settings, s_xplier, total_avg, when_arrow)
 
 
 def distance_info(settings):
@@ -182,7 +182,7 @@ def log_time(time_strp):
 
 
 def did_i_get_points(distance, imperial_minute, imperial_second, logging_time,
-                     logs, settings, total_avg):
+                     logs, settings, total_avg, when_arrow):
     try:
         if 3 <= imperial_minute <= 28:
             if 3 <= imperial_minute <= 9:
@@ -229,10 +229,12 @@ def second_multiplier(avg_second):
 
 
 def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
-                   settings, s_xplier, total_avg):
+                   settings, s_xplier, total_avg, when_arrow):
     if settings.measuring_type == "I":
         total_points = round((base_points * distance) * (m_xplier + s_xplier))
     elif settings.measuring_type == "M":
+        # Metric distance * 0.62137 will set the distance to miles.
+        # Imperial is what is used for points.
         total_points = round(base_points * (distance * 0.62137) *
                                            (m_xplier + s_xplier))
 
@@ -240,8 +242,6 @@ def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
     dashes = int(len(point_print)) + 1
     print(point_print)
     print("-" * dashes)
-
-    utcnow = arrow.utcnow()
 
     log_entry = LogEntry()
     log_entry.average = total_avg
