@@ -16,7 +16,6 @@
 # along with Sloth.  If not, see <http://www.gnu.org/licenses/>.
 #
 import arrow
-import datetime
 
 
 class ConversionFailed(Exception):
@@ -94,7 +93,7 @@ def first_name_prompter(raw_value):
 def age_prompter(raw_value):
     age = raw_value.strip()
     try:
-        datetime.datetime.strptime(age, '%Y-%m-%d').date()
+        arrow.Arrow.strptime(age, '%Y-%m-%d').date()
     except ValueError:
         raise ConversionFailed('Format is 1999-12-31')
     return age
@@ -214,13 +213,13 @@ def cardio_date_prompter(activity):
 
 def cardio_date_converter(raw_value, activity=None):
     try:
-        initial_check_date = datetime.datetime.strptime(raw_value.strip(),
-                                                        '%Y-%m-%d').date()
-        check_date_strftime = datetime.date.strftime(check_date, '%Y-%m-%d')
+        initial_check_date = arrow.Arrow.strptime(raw_value.strip(),
+                                                  '%Y-%m-%d')
+        check_date_strftime = arrow.Arrow.strptime(initial_check_date, '%Y-%m-%d')
         return check_date_strftime
     except ValueError:
         if raw_value.strip() == '':
-            return datetime.datetime.now().strftime('%Y-%m-%d')
+            return arrow.Arrow.strftime(arrow.now(), '%Y-%m-%d')
         else:
             raise ConversionFailed('Format is 1999-12-31')    
 
@@ -240,11 +239,9 @@ def cardio_when_converter(raw_value, activity=None):
             hours_ = int(time_split[0])
             minutes_ = int(time_split[1])
             seconds_ = int(time_split[2])
-            when_seconds = datetime.timedelta(hours=hours_,
-                                              minutes=minutes_,
-                                              seconds=seconds_)
-            if when_seconds.total_seconds() <= 86399:
-                log_divmod = divmod(when_seconds.total_seconds(), 60)
+            when_seconds = hours_ * 3600 + minutes_ * 60 + seconds_
+            if when_seconds <= 86399:
+                log_divmod = divmod(when_seconds, 60)
                 when_hours = round(log_divmod[0] / 60)
                 when_minutes = round(log_divmod[0] % 60)
                 when_seconds = round(log_divmod[1])
@@ -292,10 +289,8 @@ def cardio_time_converter(raw_value, activity=None):
             seconds_ = int(time_split[2])
         else:
             raise ValueError
-        time_strp = datetime.timedelta(hours=hours_,
-                                       minutes=minutes_,
-                                       seconds=seconds_)
-        if time_strp.total_seconds() <= 86399:
+        time_strp = hours_ * 3600 + minutes_ * 60 + seconds_
+        if time_strp <= 86399:
             return time_strp
         else:
             raise ConversionFailed('You can\'t put 24 hours+ as your time.')
