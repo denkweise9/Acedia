@@ -100,8 +100,8 @@ def distance_info(settings):
 
 def average_time(settings, time_strp, distance):
     if settings.measuring_type == "M":
-        avg_imperial = time_strp.total_seconds() / (distance / 1.609344)
-        avg_metric = time_strp.total_seconds() / distance
+        avg_imperial = time_strp / (distance / 1.609344)
+        avg_metric = time_strp / distance
         metric_first_divmod = divmod(avg_metric, 60)
 
         if metric_first_divmod[0] >= 60:
@@ -114,7 +114,7 @@ def average_time(settings, time_strp, distance):
         metric_second = round(metric_first_divmod[1])
 
     elif settings.measuring_type == "I":
-        avg_imperial = time_strp.total_seconds() / distance
+        avg_imperial = time_strp / distance
         avg_metric = metric_hour = metric_minute = metric_second = False
 
     imperial_first_divmod = divmod(avg_imperial, 60)
@@ -163,9 +163,9 @@ def average_log(avg_metric, imperial_hour, imperial_minute, imperial_second,
 
 
 def log_time(time_strp):
-    log_divmod = divmod(time_strp.total_seconds(), 60)
+    log_divmod = divmod(time_strp, 60)
 
-    if time_strp.total_seconds() >= 3600:
+    if time_strp >= 3600:
         log_hours = round(log_divmod[0] / 60)
         log_minutes = round(log_divmod[0] % 60)
         log_seconds = round(log_divmod[1])
