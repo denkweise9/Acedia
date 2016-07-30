@@ -17,7 +17,6 @@
 #
 import arrow
 import bisect
-from dateutil import tz
 from sloth import userinput
 from sloth.store import LogEntry
 from sloth.workouts import cardio_xplier_dict
