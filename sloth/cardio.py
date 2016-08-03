@@ -45,8 +45,8 @@ def main(settings, logs):
                            when_minute,
                            when_second)
     now_arrow = arrow.now()
-    if not now_arrow > when_arrow:
-        print("You're wanting to log for the future?")
+    if when_arrow > now_arrow:
+        print("You're wanting to log for the future? Exiting Cardio...")
         return
 
     (avg_metric, imperial_hour, imperial_minute, imperial_second,
