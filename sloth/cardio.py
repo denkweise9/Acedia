@@ -137,15 +137,45 @@ def average_time(settings, time_strp, distance):
     imperial_second = round(imperial_first_divmod[1])
 
     if not imperial_hour:
-        if distance >= 1:
-            if imperial_minute <= 3 and imperial_second <= 42:
-                # this is the only time imperial_second = None
-                # fails the check, and gets kicked back into main()
-                imperial_second = None
-                print("You can run faster than Hicham El Guerrouj?")
-                print("-" * 28)
+        if settings.measuring_type == 'I':
+            if distance >= 1:
+                imperial_second = hicham_check(imperial_minute,
+                                               imperial_second)
+            elif distance >= 0.0621371192237334:
+                imperial_second = usain_check(imperial_minute,
+                                              imperial_second)
+
+        elif settings.measuring_type == 'M':
+            if distance >= 1.609344:
+                imperial_second = hicham_check(imperial_minute,
+                                               imperial_second)
+            elif distance >= 0.1:
+                imperial_second = usain_check(imperial_minute,
+                                              imperial_second)
+
     return (avg_metric, imperial_hour, imperial_minute, imperial_second,
             metric_hour, metric_minute, metric_second)
+
+
+def hicham_check(imperial_minute, imperial_second):
+    if imperial_minute <= 3 and imperial_second <= 42:
+        # imperal_second = None check fails and gets kicked into main()
+        imperial_second = None
+        print("You can run faster than Hicham El Guerrouj?")
+        print("-" * 28)
+    return imperial_second
+
+
+def usain_check(imperial_minute, imperial_second):
+    # 100 meter dash is 9.572 seconds and 1.609344 km are in a mile. 
+    # 16.09344 * 9.572 = 154.04640768 or 2:34.04640768
+    # the time logging should probably be fixed to allow for split seconds.
+    if imperial_minute <= 2 and imperial_second <= 34:
+        # imperal_second = None check fails and gets kicked into main()
+        imperial_second = None
+        print("You can run faster than Usain Bolt?")
+        print("-" * 28)
+    return imperial_second
 
 
 def average_log(avg_metric, imperial_hour, imperial_minute, imperial_second,
