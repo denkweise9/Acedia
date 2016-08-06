@@ -19,8 +19,16 @@ import arrow
 import bisect
 from sloth import userinput
 from sloth.store import LogEntry
-from sloth.workouts import cardio_xplier_dict
 from sloth.workouts import workouts
+
+cardio_xplier = {'Sprint': {3: 1.1, 2: 1.4, 1: 1.7, 0: 2.0},
+                 'Run': {9: 0.5, 8: 0.7, 7: 0.9, 6: 1.1,
+                         5: 1.3, 4: 1.5, 3: 1.7},
+                 'Jog': {18: 0.20, 17: 0.3, 16: 0.4, 15: 0.5, 14: 0.6,
+                         13: 0.7, 12: 0.8, 11: 0.9, 10: 1.0},
+                 'Walk': {28: 0.05, 27: 0.1, 26: 0.15, 25: 0.2, 24: 0.25,
+                          23: 0.3, 22: 0.35, 21: 0.4, 20: 0.45, 19: 0.5}
+                }
 
 
 def main(settings, logs):
@@ -128,12 +136,14 @@ def average_time(settings, time_strp, distance):
         imperial_minute = round(imperial_first_divmod[0])
     imperial_second = round(imperial_first_divmod[1])
 
-    if not imperial_hour and imperial_minute <= 3 and imperial_second <= 42:
-        # this is the only time imperial_second = None
-        # fails the check, and gets kicked back into main()
-        imperial_second = None
-        print("You can run faster than Hicham El Guerrouj?")
-        print("-" * 28)
+    if not imperial_hour:
+        if distance >= 1:
+            if imperial_minute <= 3 and imperial_second <= 42:
+                # this is the only time imperial_second = None
+                # fails the check, and gets kicked back into main()
+                imperial_second = None
+                print("You can run faster than Hicham El Guerrouj?")
+                print("-" * 28)
     return (avg_metric, imperial_hour, imperial_minute, imperial_second,
             metric_hour, metric_minute, metric_second)
 
@@ -183,22 +193,26 @@ def log_time(time_strp):
 def did_i_get_points(distance, imperial_minute, imperial_second, logging_time,
                      logs, settings, total_avg, when_arrow):
     try:
-        if 3 <= imperial_minute <= 28:
-            if 3 <= imperial_minute <= 9:
+        if imperial_minute <= 28:
+            if 3 >= imperial_minute:
+                if imperial_second <= 42:
+                    kind = "Sprint"
+                elif imperial_second >= 43:
+                    kind = "Run"
+            elif 3 <= imperial_minute <= 9:
                 kind = "Run"
             elif 10 <= imperial_minute <= 18:
                 kind = "Jog"
             elif 19 <= imperial_minute <= 28:
                 kind = "Walk"
             base_points = workouts["Cardio"][kind]
-            m_xplier = cardio_xplier_dict[kind][imperial_minute]
+            m_xplier = cardio_xplier[kind][imperial_minute]
             s_xplier = second_multiplier(imperial_second)
         else:
             kind = "Walk"
             raise KeyError
 
-    # KeyError is only raised if the average minute is greater than 18
-    # or less than 3 ( which, the 3:42 check would take care of that )
+    # KeyError is only raised if the average minute is greater than 28
     except KeyError:
         print("Didn't qualify for points")
         print("-" * 28)
