@@ -31,7 +31,6 @@ The stronger YOU get, the stronger your character gets.
     - Motivation in the form of:  
         - Deteriorating experience points ( 20% ) for every 7 days you haven't logged anything.
             - The first level ( 0 - 249 XP ) is a safe zone  
-        - Weekly bosses ( not yet implemented )  
         - Monsters to fight ( not yet implemented )  
         - Items, armor, weapons, gold, etc ( not yet implemented )  
     - Ability to log every exercise you do, and complete access to your data  
