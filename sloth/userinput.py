@@ -204,14 +204,12 @@ def start_log_prompter(raw_value):
         raise ConversionFailed('That wasn\'t a valid input, let\'s try again.')
 
 
-def cardio_date_prompter(activity):
+def cardio_date_prompter():
     return Prompter(
-        'What day? (Format 1999-12-31) (Enter for today)', cardio_date_converter,
-        activity=None
-    )
+        'What day? (Format 1999-12-31) (Enter for today)', cardio_date_converter)
 
 
-def cardio_date_converter(raw_value, activity=None):
+def cardio_date_converter(raw_value):
     try:
         initial_check_date = arrow.Arrow.strptime(raw_value.strip(),
                                                   '%Y-%m-%d')
@@ -224,14 +222,13 @@ def cardio_date_converter(raw_value, activity=None):
             raise ConversionFailed('Format is 1999-12-31')    
 
 
-def cardio_when_prompter(activity):
+def cardio_when_prompter():
     return Prompter(
-        'What time did you finish? (Format 20:30:15) (Enter for now)', cardio_when_converter,
-        activity=None
+        'What time did you finish? (Format 20:30:15) (Enter for now)', cardio_when_converter
     )
 
 
-def cardio_when_converter(raw_value, activity=None):
+def cardio_when_converter(raw_value):
     time_input = raw_value.strip()
     time_split = time_input.split(':')
     try:
@@ -268,14 +265,12 @@ def cardio_when_converter(raw_value, activity=None):
         )
 
 
-def cardio_time_prompter(activity):
+def cardio_time_prompter():
     return Prompter(
-        'How long did you go? (10:00/10:00:00)', cardio_time_converter,
-        activity=activity
-    )
+        'How long did you go? (10:00/10:00:00)', cardio_time_converter)
 
 
-def cardio_time_converter(raw_value, activity=None):
+def cardio_time_converter(raw_value):
     time_input = raw_value.strip()
     time_split = time_input.split(':')
     try:
