@@ -487,10 +487,10 @@ def measurement_change_prompter(activity):
 
 
 def measurement_change_converter(raw_value, activity):
-    measurement = raw_value.strip().lower()
-    if measurement.upper() in ['Y', 'YES']:
+    measurement = raw_value.strip().upper()
+    if measurement in ['Y', 'YES']:
         return True
-    elif measurement.upper() in ['N', 'NO']:
+    elif measurement in ['N', 'NO']:
         return False
     else:
         print('I\'ll take that as a no.')
