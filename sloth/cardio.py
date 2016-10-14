@@ -97,11 +97,9 @@ def main(settings, logs):
 
 def distance_info(settings):
     if settings.measuring_type == "I":
-        distance_prompter = userinput.cardio_distance_imperial_prompter(
-            activity=None)
+        distance_prompter = userinput.cardio_distance_imperial_prompter()
     elif settings.measuring_type == "M":
-        distance_prompter = userinput.cardio_distance_metric_prompter(
-            activity=None)
+        distance_prompter = userinput.cardio_distance_metric_prompter()
     distance = distance_prompter.prompt()
     return distance
 
