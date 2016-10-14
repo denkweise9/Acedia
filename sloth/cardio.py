@@ -35,13 +35,13 @@ def main(settings, logs):
 
     distance = distance_info(settings)
 
-    time_prompter = userinput.cardio_time_prompter(activity=None)
+    time_prompter = userinput.cardio_time_prompter()
     time_strp = time_prompter.prompt()
 
-    date_prompter = userinput.cardio_date_prompter(activity=None)
+    date_prompter = userinput.cardio_date_prompter()
     when_date = date_prompter.prompt()
 
-    when_prompter = userinput.cardio_when_prompter(activity=None)
+    when_prompter = userinput.cardio_when_prompter()
     when_time = when_prompter.prompt()
 
     when_year, when_month, when_day = [int(i) for i in when_date.split('-')]
