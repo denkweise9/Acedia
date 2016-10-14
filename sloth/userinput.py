@@ -79,12 +79,12 @@ def integer_converter(value):
     'Enter your first name (20 character limit)'
 )
 def first_name_prompter(raw_value):
-    name = raw_value.strip()
+    name = raw_value.capitalize().strip()
     if len(name) > 20:
         raise ConversionFailed('There\'s a 20 character limit...')
     if len(name) == 0:
         raise ConversionFailed('How were you expecting that to work?')
-    return name.capitalize()
+    return name
 
 
 @prompter_from_converter(
@@ -101,8 +101,8 @@ def age_prompter(raw_value):
 
 @prompter_from_converter('Enter your sex (M/F)')
 def sex_prompter(raw_value):
-    sex = raw_value.strip()
-    if sex.upper() != 'M' and sex.upper() != 'F':
+    sex = raw_value.strip().upper()
+    if sex != 'M' and sex != 'F':
         raise ConversionFailed('You didn\'t choose male or female.')
     return sex.upper()
 
@@ -123,10 +123,10 @@ def goal_prompter(raw_value):
 
 @prompter_from_converter('(I)mperial or (M)etric measurements?')
 def measurement_system_prompter(raw_value):
-    system = raw_value.strip()
-    if system.upper() == ('M'):
+    system = raw_value.strip().upper()
+    if system == ('M'):
         return 'M'
-    elif system.upper() == ('I'):
+    elif system == ('I'):
         return 'I'
     else:
         raise ConversionFailed('Choose (M)etric or (I)mperial')
@@ -191,7 +191,7 @@ def imperial_body_height_prompter(raw_value):
 @prompter_from_converter('Do you have anything to log before deterioration? (Y/N)')
 def start_log_prompter(raw_value):
     try:
-        start_log = raw_value.lower()
+        start_log = raw_value.strip().lower()
         if start_log in ['y', 'yes']:
             return True
         elif start_log in ['', 'n', 'no']:
@@ -295,15 +295,13 @@ def cardio_time_converter(raw_value):
         )
 
 
-def cardio_distance_imperial_prompter(activity):
+def cardio_distance_imperial_prompter():
     return Prompter(
         'How many miles? (mi to km is 1.609344)',
-        cardio_distance_imperial_converter,
-        activity=activity
-    )
+        cardio_distance_imperial_converter)
 
 
-def cardio_distance_imperial_converter(raw_value, *, activity):
+def cardio_distance_imperial_converter(raw_value):
     try:
         distance = float(raw_value)
     except (ValueError):
@@ -317,15 +315,13 @@ def cardio_distance_imperial_converter(raw_value, *, activity):
     return distance
 
 
-def cardio_distance_metric_prompter(activity):
+def cardio_distance_metric_prompter():
     return Prompter(
         'How many kilometers? (km to mi is 0.62137)',
-        cardio_distance_metric_converter,
-        activity=activity
-    )
+        cardio_distance_metric_converter)
 
 
-def cardio_distance_metric_converter(raw_value, *, activity):
+def cardio_distance_metric_converter(raw_value):
     try:
         distance = float(raw_value)
     except (ValueError):
@@ -347,8 +343,8 @@ def stats_agi_prompter(activity):
     )
 
 
-def stats_agi_converter(raw_value, *, activity):
-    agility = raw_value.strip()
+def stats_agi_converter(raw_value, activity):
+    agility = raw_value.strip().lower()
     try:
         if 0 <= int(agility) <= 10:
             agility = int(agility)
@@ -367,8 +363,8 @@ def stats_chr_prompter(activity):
     )
 
 
-def stats_chr_converter(raw_value, *, activity):
-    charisma = raw_value.strip()
+def stats_chr_converter(raw_value, activity):
+    charisma = raw_value.strip().lower()
     try:
         if charisma == 'b':
             return 0, 0
@@ -389,8 +385,8 @@ def stats_def_prompter(activity):
     )
 
 
-def stats_def_converter(raw_value, *, activity):
-    defense = raw_value.strip()
+def stats_def_converter(raw_value, activity):
+    defense = raw_value.strip().lower()
     try:
         if defense == 'b':
             return 0, 1
@@ -414,8 +410,8 @@ def stats_end_prompter(activity):
     )
 
 
-def stats_end_converter(raw_value, *, activity):
-    endurance = raw_value.strip()
+def stats_end_converter(raw_value, activity):
+    endurance = raw_value.strip().lower()
     try:
         if endurance == 'b':
             return 0, 2
@@ -439,8 +435,8 @@ def stats_int_prompter(activity):
     )
 
 
-def stats_int_converter(raw_value, *, activity):
-    intelligence = raw_value.strip()
+def stats_int_converter(raw_value, activity):
+    intelligence = raw_value.strip().lower()
     try:
         if intelligence == 'b':
             return 0, 3
@@ -464,8 +460,8 @@ def stats_str_prompter(activity):
     )
 
 
-def stats_str_converter(raw_value, *, activity):
-    strength = raw_value.strip()
+def stats_str_converter(raw_value, activity):
+    strength = raw_value.strip().lower()
     try:
         if strength == 'b':
             return 0, 4
@@ -478,7 +474,7 @@ def stats_str_converter(raw_value, *, activity):
             elif activity - int(strength) < 0:
                 raise ConversionFailed('You have no more points to use..')
         elif int(strength) > 10:
-            raise ConversionFailed('That\'s over the allowed amount (10)')
+            raise ConversionFailed('That\'s over the allowed amount (10).')
     except ValueError:
         raise ConversionFailed('Incorrect input')
 
@@ -490,8 +486,8 @@ def measurement_change_prompter(activity):
     )
 
 
-def measurement_change_converter(raw_value, *, activity):
-    measurement = raw_value.strip()
+def measurement_change_converter(raw_value, activity):
+    measurement = raw_value.strip().lower()
     if measurement.upper() in ['Y', 'YES']:
         return True
     elif measurement.upper() in ['N', 'NO']:
