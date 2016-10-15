@@ -31,8 +31,14 @@ cardio_xplier = {'Sprint': {3: 1.1, 2: 1.4, 1: 1.7, 0: 2.0},
                 }
 
 
-def main(settings, logs):
+def second_multiplier(avg_second):
+    breakpoints = [15, 30, 45, 60]
+    s_xpliers = [0.2, 0.15, 0.10, 0.05]
+    i = bisect.bisect(breakpoints, avg_second)
+    return(s_xpliers[i])
 
+
+def main(settings, logs):
     distance = distance_info(settings)
 
     time_prompter = userinput.cardio_time_prompter()
@@ -44,14 +50,15 @@ def main(settings, logs):
     when_prompter = userinput.cardio_when_prompter()
     when_time = when_prompter.prompt()
 
-    when_year, when_month, when_day = [int(i) for i in when_date.split('-')]
     when_hour, when_minute, when_second = [int(i) for i in when_time.split()]
-    when_arrow = arrow.get(when_year,
-                           when_month,
-                           when_day,
+
+    when_arrow = arrow.get(when_date.year,
+                           when_date.month,
+                           when_date.day,
                            when_hour,
                            when_minute,
                            when_second)
+
     now_arrow = arrow.now()
     if when_arrow > now_arrow:
         print("You're wanting to log for the future? Exiting Cardio...")
@@ -260,13 +267,6 @@ def did_i_get_points(distance, imperial_minute, imperial_second, logging_time,
         return (False, False, False, False)
     else:
         return (base_points, kind, m_xplier, s_xplier)
-
-
-def second_multiplier(avg_second):
-    breakpoints = [15, 30, 45, 60]
-    s_xpliers = [0.2, 0.15, 0.10, 0.05]
-    i = bisect.bisect(breakpoints, avg_second)
-    return(s_xpliers[i])
 
 
 def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
