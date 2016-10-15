@@ -213,11 +213,13 @@ def cardio_date_converter(raw_value):
     try:
         initial_check_date = arrow.Arrow.strptime(raw_value.strip(),
                                                   '%Y-%m-%d')
-        check_date_strftime = arrow.Arrow.strptime(initial_check_date, '%Y-%m-%d')
-        return check_date_strftime
+        return initial_check_date
     except ValueError:
         if raw_value.strip() == '':
-            return arrow.Arrow.strftime(arrow.now(), '%Y-%m-%d')
+            return '{0}-{1}-{2}'.format(arrow.now().year,
+                                        arrow.now().month,
+                                        arrow.now().day
+            )
         else:
             raise ConversionFailed('Format is 1999-12-31')    
 
@@ -242,9 +244,9 @@ def cardio_when_converter(raw_value):
                 when_hours = round(log_divmod[0] / 60)
                 when_minutes = round(log_divmod[0] % 60)
                 when_seconds = round(log_divmod[1])
-                when_time = ('{0:02d}, {1:02d}, {2:02d}'.format(when_hours,
-                                                                when_minutes,
-                                                                when_seconds))
+                when_time = ('{0:02d} {1:02d} {2:02d}'.format(when_hours,
+                                                              when_minutes,
+                                                              when_seconds))
                 return when_time
             else:
                 raise ConversionFailed('There\'s only 24 hours in a day')
