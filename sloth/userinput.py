@@ -216,10 +216,7 @@ def cardio_date_converter(raw_value):
         return initial_check_date
     except ValueError:
         if raw_value.strip() == '':
-            return '{0}-{1}-{2}'.format(arrow.now().year,
-                                        arrow.now().month,
-                                        arrow.now().day
-            )
+            return arrow.now()
         else:
             raise ConversionFailed('Format is 1999-12-31')    
 
