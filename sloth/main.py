@@ -33,7 +33,7 @@ from sloth.store import LogsStore
 from sloth.workouts import workouts
 
 # User dir
-main_dir = os.path.expanduser("~") 
+main_dir = os.path.expanduser("~")
 
 # Saved exercises
 logs_path = os.path.join(main_dir, 'log.ini')
@@ -241,7 +241,7 @@ def hello(settings, logs, birthday_total, current_age,
 
     print('Lvl {0}/XP {1}'.format(level_, total_xp))
 
-    if start_log == None:
+    if start_log is None:
         start_log = userinput.start_log_prompter.prompt()
 
     if start_log:
@@ -251,6 +251,7 @@ def hello(settings, logs, birthday_total, current_age,
     else:
         deteriorate(settings, logs)
         log_exercise(settings, logs, start_log)
+
 
 def log_exercise(settings, logs, start_log):
     completer = MyCompleter([str(k) for k in workouts])
