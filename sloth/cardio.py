@@ -27,38 +27,30 @@ cardio_xplier = {'Sprint': {3: 1.1, 2: 1.4, 1: 1.7, 0: 2.0},
                  'Jog': {18: 0.20, 17: 0.3, 16: 0.4, 15: 0.5, 14: 0.6,
                          13: 0.7, 12: 0.8, 11: 0.9, 10: 1.0},
                  'Walk': {28: 0.05, 27: 0.1, 26: 0.15, 25: 0.2, 24: 0.25,
-                          23: 0.3, 22: 0.35, 21: 0.4, 20: 0.45, 19: 0.5}
-                }
-
-
-def second_multiplier(avg_second):
-    breakpoints = [15, 30, 45, 60]
-    s_xpliers = [0.2, 0.15, 0.10, 0.05]
-    i = bisect.bisect(breakpoints, avg_second)
-    return(s_xpliers[i])
+                          23: 0.3, 22: 0.35, 21: 0.4, 20: 0.45, 19: 0.5}}
 
 
 def main(settings, logs):
+
     distance = distance_info(settings)
 
-    time_prompter = userinput.cardio_time_prompter()
+    time_prompter = userinput.cardio_time_prompter(activity=None)
     time_strp = time_prompter.prompt()
 
-    date_prompter = userinput.cardio_date_prompter()
+    date_prompter = userinput.cardio_date_prompter(activity=None)
     when_date = date_prompter.prompt()
 
-    when_prompter = userinput.cardio_when_prompter()
+    when_prompter = userinput.cardio_when_prompter(activity=None)
     when_time = when_prompter.prompt()
 
+    when_year, when_month, when_day = [int(i) for i in when_date.split('-')]
     when_hour, when_minute, when_second = [int(i) for i in when_time.split()]
-
-    when_arrow = arrow.get(when_date.year,
-                           when_date.month,
-                           when_date.day,
+    when_arrow = arrow.get(when_year,
+                           when_month,
+                           when_day,
                            when_hour,
                            when_minute,
                            when_second)
-
     now_arrow = arrow.now()
     if when_arrow > now_arrow:
         print("You're wanting to log for the future? Exiting Cardio...")
@@ -69,11 +61,13 @@ def main(settings, logs):
                                                                time_strp,
                                                                distance)
 
+    checks(distance, imperial_hour, imperial_minute, imperial_second)
+
     # The only time this would happen
     # is if you said you could run a mile faster than 3:43
     # This was previously set to "False",
     # but that means it would be triggered if the seconds were 00
-    if imperial_second == None:
+    if imperial_second is None:
         return
 
     imperial_minute, imperial_second, total_avg = average_log(avg_metric,
@@ -104,9 +98,11 @@ def main(settings, logs):
 
 def distance_info(settings):
     if settings.measuring_type == "I":
-        distance_prompter = userinput.cardio_distance_imperial_prompter()
+        distance_prompter = userinput.cardio_distance_imperial_prompter(
+            activity=None)
     elif settings.measuring_type == "M":
-        distance_prompter = userinput.cardio_distance_metric_prompter()
+        distance_prompter = userinput.cardio_distance_metric_prompter(
+            activity=None)
     distance = distance_prompter.prompt()
     return distance
 
@@ -141,6 +137,12 @@ def average_time(settings, time_strp, distance):
         imperial_minute = round(imperial_first_divmod[0])
     imperial_second = round(imperial_first_divmod[1])
 
+    return (avg_metric, imperial_hour, imperial_minute, imperial_second,
+            metric_hour, metric_minute, metric_second)
+
+
+def checks(settings, distance, imperial_hour, imperial_minute,
+           imperial_second):
     if not imperial_hour:
         if settings.measuring_type == 'I':
             if distance >= 1:
@@ -158,9 +160,6 @@ def average_time(settings, time_strp, distance):
                 imperial_second = usain_check(imperial_minute,
                                               imperial_second)
 
-    return (avg_metric, imperial_hour, imperial_minute, imperial_second,
-            metric_hour, metric_minute, metric_second)
-
 
 def hicham_check(imperial_minute, imperial_second):
     if imperial_minute <= 3 and imperial_second <= 42:
@@ -172,7 +171,7 @@ def hicham_check(imperial_minute, imperial_second):
 
 
 def usain_check(imperial_minute, imperial_second):
-    # 100 meter dash is 9.572 seconds and 1.609344 km are in a mile. 
+    # 100 meter dash is 9.572 seconds and 1.609344 km are in a mile.
     # 16.09344 * 9.572 = 154.04640768 or 2:34.04640768
     # the time logging should probably be fixed to allow for split seconds.
     if imperial_minute <= 2 and imperial_second <= 34:
@@ -267,6 +266,13 @@ def did_i_get_points(distance, imperial_minute, imperial_second, logging_time,
         return (False, False, False, False)
     else:
         return (base_points, kind, m_xplier, s_xplier)
+
+
+def second_multiplier(avg_second):
+    breakpoints = [15, 30, 45, 60]
+    s_xpliers = [0.2, 0.15, 0.10, 0.05]
+    i = bisect.bisect(breakpoints, avg_second)
+    return(s_xpliers[i])
 
 
 def running_points(base_points, distance, kind, logging_time, logs, m_xplier,
