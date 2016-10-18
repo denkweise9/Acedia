@@ -26,5 +26,4 @@ workouts = {'Bicycle': 200,
             'Settings': None,
             'Sit-up': 200,
             'T': 200,
-            'Y': 200
-           }
+            'Y': 200}
