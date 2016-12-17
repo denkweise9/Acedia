@@ -1,12 +1,15 @@
-**HAVE YOU EVER WANTED TO FIGHT HUGE DRAGONS?**  
-**WHAT ABOUT KICK A SKELETON IN THE TEETH?**  
-**MAN THOSE SOUND AMAZING, DON'T THEY?**  
+**Have you ever wanted to overthrow a kingdom?**    
   
-Well, imagine an RPG game tied to your physical fitness.  
-The stronger YOU get, the stronger your character gets.  
+Well, did you ever take into account what would happen if you did?  
+The enemies you'd make, the new allies you'd have, and economical issues you'd cause?
   
-**SO GO OUT AND TRAIN SO YOU CAN SHOW NO MERCY TO YOUR ENEMIES!**  
-  
+**Imagine a game where your choices mattered.**
+
+**The way you speak, act, and approach other people and situations.**
+**All of these having an effect on the world around you.**
+**Welcome to Sloth, The Choices RPG**
+
+
 ### What are your plans?
 - https://github.com/Lvl4Sword/Sloth/wiki/Vision
   
@@ -27,13 +30,6 @@ The stronger YOU get, the stronger your character gets.
         - Windows: 7/10  
 - Python 2 or 3?  
     - 3, and it's also at the top of most of the .py files  
-- What exactly does this program give me?  
-    - Motivation in the form of:  
-        - Deteriorating experience points ( 20% ) for every 7 days you haven't logged anything.
-            - The first level ( 0 - 249 XP ) is a safe zone  
-        - Monsters to fight ( not yet implemented )  
-        - Items, armor, weapons, gold, etc ( not yet implemented )  
-    - Ability to log every exercise you do, and complete access to your data  
   
 ### How do I get this running?  
 - Download the project using one of these ways:  
@@ -73,28 +69,12 @@ The stronger YOU get, the stronger your character gets.
 - ( such as: virtualenv/bin/tox ~/sloth )
 
 ### What needs done for tests?:  
-- cardio.py  
 - main.py  
-- physical.py  
 - start.py  
 - finishing up store.py  
-- workouts.py  
 
 ### What tests have been completed?:  
-- userinput.py  
-
-### Test coverage:  
-
-```
-Name                                             Stmts   Miss  Cover  
---------------------------------------------------------------------  
-lib/python3.4/site-packages/sloth/__init__.py        0      0   100%  
-lib/python3.4/site-packages/sloth/physical.py        8      6    25%  
-lib/python3.4/site-packages/sloth/store.py         106     27    75%  
-lib/python3.4/site-packages/sloth/userinput.py     241      0   100%  
---------------------------------------------------------------------  
-TOTAL                                              355     33    91%  
-```
+- None :-(
 
 ### FYI  
 - This game is not remotely close to complete, and things may change.  
