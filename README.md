@@ -3,11 +3,11 @@
 Well, did you ever take into account what would happen if you did?  
 The enemies you'd make, the new allies you'd have, and economical issues you'd cause?
   
-**Imagine a game where your choices mattered.**
+**Imagine a game where your choices mattered.**  
 
-**The way you speak, act, and approach other people and situations.**
-**All of these having an effect on the world around you.**
-**Welcome to Sloth, The Choices RPG**
+**The way you speak, act, and approach other people and situations.**  
+**All of these having an effect on the world around you.**  
+**Welcome to Sloth, The Choices RPG**  
 
 
 ### What are your plans?
