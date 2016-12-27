@@ -123,6 +123,33 @@ class MyCompleter(object):
             return None
 
 
+def check_xp(logs, settings):
+    logpoints = logs.check_log()
+
+    if logpoints is None:
+        if settings.xp != 0:
+            settings.xp = 0
+            settings.commit()
+        return
+    else:
+        total_points, losing_points = logpoints
+        log_total = sum(total_points) - sum(losing_points)
+
+    if settings.xp == log_total:
+        pass
+    else:
+        settings.xp = log_total
+        settings.commit()
+
+
+def level(total_xp):
+    breakpoints = [250, 500, 2000, 3750, 5750, 8250, 11000, 14250, 17750,
+                   21750, 26000, 30750, 35750, 41250, 47000, 53250, 59750,
+                   66750, 74000, 82250, 90750]
+    i = bisect.bisect(breakpoints, total_xp)
+    return i + 1
+
+
 def personal_checks(settings):
 
     logs = LogsStore(logs_path)
@@ -188,30 +215,3 @@ def press_start(settings, logs):
             else:
                 print('This is a filler message for now.')
             personal_checks(settings)
-
-
-def check_xp(logs, settings):
-    logpoints = logs.check_log()
-
-    if logpoints is None:
-        if settings.xp != 0:
-            settings.xp = 0
-            settings.commit()
-        return
-    else:
-        total_points, losing_points = logpoints
-        log_total = sum(total_points) - sum(losing_points)
-
-    if settings.xp == log_total:
-        pass
-    else:
-        settings.xp = log_total
-        settings.commit()
-
-
-def level(total_xp):
-    breakpoints = [250, 500, 2000, 3750, 5750, 8250, 11000, 14250, 17750,
-                   21750, 26000, 30750, 35750, 41250, 47000, 53250, 59750,
-                   66750, 74000, 82250, 90750]
-    i = bisect.bisect(breakpoints, total_xp)
-    return i + 1
