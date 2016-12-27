@@ -11,13 +11,13 @@ The enemies you'd make, the new allies you'd have, and economical issues you'd c
 
 
 ### What are your plans?
-- https://github.com/Lvl4Sword/Sloth/wiki/Vision
+- https://github.com/Lvl4Sword/Acedia/wiki/Vision
   
 ### I want to help!
 - That's great! Feel free to take a look at the following:  
-    - https://github.com/Lvl4Sword/Sloth/issues/ 
+    - https://github.com/Lvl4Sword/Acedia/issues/ 
 
-- Our IRC channel is #sloth-game on irc.freenode.net if you'd like to come in and say hi.
+- Our IRC channel is #acedia on irc.freenode.net if you'd like to come in and say hi.
   
 ### FAQ  
 - WHERE ARE MY SETTINGS/LOGS?
@@ -34,39 +34,39 @@ The enemies you'd make, the new allies you'd have, and economical issues you'd c
 ### How do I get this running?  
 - Download the project using one of these ways:  
     - git  
-    - https://github.com/Lvl4Sword/Sloth/archive/master.zip
+    - https://github.com/Lvl4Sword/Acedia/archive/master.zip
 - A virtualenv is not necessary, but recommended  
 - I'm using Windows:  
     - Download python3 for your architecture from python.org  
         - MAKE SURE PYTHON IS SET TO BE INSTALLED IN YOUR PATH!  
     - pip install virtualenv  
     - virtualenv C:/sloth-virtualenv  
-    - C:/sloth-virtualenv/scripts/pip.exe install pyreadline  
-    - C:/sloth-virtualenv/scripts/python.exe setup.py install  
-    - C:/sloth-virtualenv/scripts/sloth-game.exe  
+    - C:/acedia-virtualenv/scripts/pip.exe install pyreadline  
+    - C:/acedia-virtualenv/scripts/python.exe setup.py install  
+    - C:/acedia-virtualenv/scripts/sloth-game.exe  
 - I'm using Linux:  
     - Download python3 using your repo  
     - apt-get install python3-virtualenv  
-    - virtualenv -p python3 sloth-virtualenv  
-    - Store the game in ~/sloth  
+    - virtualenv -p python3 acedia-virtualenv  
+    - Store the game in ~/acedia  
     - if distro == 'Ubuntu':    
         - sloth-virtualenv/bin/pip install -U setuptools  
-    - sloth-virtualenv/bin/pip install ~/sloth  
+    - sloth-virtualenv/bin/pip install ~/acedia  
     - sloth-virtualenv/bin/sloth-game  
 - I'm using Mac:  
     - Download python3 for your architecture from python.org  
         - MAKE SURE PYTHON IS SET TO BE INSTALLED IN YOUR PATH!  
-    - Store the game in ~/sloth  
+    - Store the game in ~/acedia  
     - pip3 install virtualenv  
-    - virtualenv -p python3 ~/sloth/virtualenv  
-    - virtualenv/bin/pip install ~/sloth  
+    - virtualenv -p python3 ~/acedia/virtualenv  
+    - virtualenv/bin/pip install ~/acedia  
     - virtualenv/bin/sloth-game  
 - I use something else:  
     - Let me know what you're running and I'll help you.   
   
 ### How do I run the tests?  
 - Install tox, and run it inside the repository directory
-- ( such as: virtualenv/bin/tox ~/sloth )
+- ( such as: virtualenv/bin/tox ~/acedia )
 
 ### What needs done for tests?:  
 - main.py  
