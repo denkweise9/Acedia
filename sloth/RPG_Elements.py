@@ -258,3 +258,4 @@ In [69]: c.attack(g)
 target dead
 Out[69]: False
 '''
+
