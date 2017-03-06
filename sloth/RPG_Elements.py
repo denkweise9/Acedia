@@ -5,11 +5,12 @@ import sloth, random
 
 #Races in Game
 RPG_Elements_Races = {
-"Elves",
-"Humans",
-"Dwarves",
-"Goblins",
-"Skeletons"
+"Elves":[],
+"Humans":[],
+"Dwarves":[],
+"Goblins":[Goblin_reg, Goblin_general],
+"Skeletons":[Zombie, Skeleton],
+"Animals":[Cow, Pig, Chicke, Horse, Goat]
 }
 
 #Characters that are teamed with our user
