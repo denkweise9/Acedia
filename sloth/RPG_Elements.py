@@ -3,20 +3,20 @@
 
 import sloth, random
 
-#Races in Game
+# Values are Races in Game, Keys are the classes to each object
 RPG_Elements_Races = {
-"Elves":[],
-"Humans":[],
-"Dwarves":[],
-"Goblins":[Goblin_reg, Goblin_general],
+"Elves":[Elf_general, Elf_guard],
+"Humans":[General, Guard, Farmer, Blacksmith, Merchant],
+"Dwarves":[Dwarf_guard],
+"Goblins":[Goblin_reg, Goblin_general, Goblin_guard],
 "Skeletons":[Zombie, Skeleton],
-"Animals":[Cow, Pig, Chicke, Horse, Goat]
+"Animals":[Cow, Pig, Chicken, Horse, Goat]
 }
 
-#Characters that are teamed with our user
+# Values are Characters that are teamed with our user through quests and adventure, keys are the stats
 RPG_Elements_Characters = {
-     User,
-     Ivan,
+     User:{},
+     Ivan:{},
 
 }
 
@@ -24,14 +24,14 @@ RPG_Elements_Characters = {
 #NPC's to kill. Just General NPC's not quest/story related ones.
 #Would contain Currency_Dropped, Items Dropped, and XP_Given.
 RPG_Elements_NPCs = {
-    Goblin_reg,
-    Goblin_general,
-    Skeleton,
-    Cow,
-    Pig,
-    Horse,
-    Chicken,
-    Goat,
+    Goblin_reg:{},
+    Goblin_general:{},
+    Skeleton:{},
+    Cow:{},
+    Pig:{},
+    Horse:{},
+    Chicken:{},
+    Goat:{},
    
 
 }
@@ -54,12 +54,20 @@ class Goblin_reg(object):
                 return False
             
 class Goblin_general(object):
-    agility = 3
+    intelligence = 10
     
-    def __init__(self, life, attack_lvl, defence_lvl):  
+    def __init__(self, life, attack_lvl, defence_lvl, agility_lvl, charisma_lvl, strength_lvl, 
+               rh, lh, rl, ll ): #rh = right hand, ll = left leg. these slots hold equipment  
         self.life = life
         self.attack_lvl = attack_lvl
         self.defence_lvl = defence_lvl
+        self.agility_lvl = agility_lvl
+        self.charisma_lvl = charisma_lvl
+        self.strength_lvl = strength_lvl
+        self.rh = rh
+        self.lh = lh
+        self.rl = rl
+        self.ll = ll
     def attack(self, target):
         if attack_lvl >= target.defence_lvl:
             target.life -= 10
@@ -67,11 +75,37 @@ class Goblin_general(object):
                 print("target dead")
                 return False
               
+class General(object  #this is basically a human general
+    intelligence = 10
+    
+    def __init__(self, life, attack_lvl, defence_lvl, agility_lvl, charisma_lvl, strength_lvl, 
+               rh, lh, rl, ll ): #rh = right hand, ll = left leg. these slots hold equipment  
+        self.life = life
+        self.attack_lvl = attack_lvl
+        self.defence_lvl = defence_lvl
+        self.agility_lvl = agility_lvl
+        self.charisma_lvl = charisma_lvl
+        self.strength_lvl = strength_lvl
+        self.rh = rh
+        self.lh = lh
+        self.rl = rl
+        self.ll = ll
+    def attack(self, target):
+        if attack_lvl >= target.defence_lvl:
+            target.life -= 10
+            if taget.life <= 0:
+                print("target dead")
+                return False
+              
+              
+              
+#This code is modular, so fixing one animal class can apply to others        
 class Goat(object):
      
-     def __init__(self, life, attack_lvl, defence_lvl):
+     def __init__(self, life, attack_lvl, stregnth_lvl, defence_lvl):
           self.life = life
           self.attack_lvl = attack_lvl
+          self.strength_lvl = strength_lvl
           self.defence_lvl = defence_lvl
      def attack(self, target):
          if attack_lvl >= target.defence_lvl:
@@ -79,7 +113,50 @@ class Goat(object):
              if taget.life <= 0:
                  print("target dead")
                  return False
-          
+              
+class Pig(object):
+     
+     def __init__(self, life, attack_lvl, stregnth_lvl, defence_lvl):
+          self.life = life
+          self.attack_lvl = attack_lvl
+          self.strength_lvl = strength_lvl
+          self.defence_lvl = defence_lvl
+     def attack(self, target):
+         if attack_lvl >= target.defence_lvl:
+             target.life -= 10
+             if taget.life <= 0:
+                 print("target dead")
+                 return False
+              
+              
+              
+class Horse(object):
+     
+     def __init__(self, life, attack_lvl, stregnth_lvl, defence_lvl):
+          self.life = life
+          self.attack_lvl = attack_lvl
+          self.strength_lvl = strength_lvl
+          self.defence_lvl = defence_lvl
+     def attack(self, target):
+         if attack_lvl >= target.defence_lvl:
+             target.life -= 10
+             if taget.life <= 0:
+                 print("target dead")
+                 return False
+              
+class Chicken(object):
+     
+     def __init__(self, life, attack_lvl, stregnth_lvl, defence_lvl):
+          self.life = life
+          self.attack_lvl = attack_lvl
+          self.strength_lvl = strength_lvl
+          self.defence_lvl = defence_lvl
+     def attack(self, target):
+         if attack_lvl >= target.defence_lvl:
+             target.life -= 10
+             if taget.life <= 0:
+                 print("target dead")
+                 return False
           
 #The following below is for exmaples only
 c = Goblin_reg(10,10,10)
