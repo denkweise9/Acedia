@@ -92,7 +92,73 @@ class Goblin_general(object):
             if taget.life <= 0:
                 print("target dead")
                 return False
+            
+class Elf_general(object):
+    intelligence = 65
+    
+    def __init__(self, life, attack_lvl, defence_lvl, agility_lvl, charisma_lvl, strength_lvl, 
+               rh, lh, rl, ll ): #rh = right hand, ll = left leg. these slots hold equipment  
+        self.life = life
+        self.attack_lvl = attack_lvl
+        self.defence_lvl = defence_lvl
+        self.agility_lvl = agility_lvl
+        self.charisma_lvl = charisma_lvl
+        self.strength_lvl = strength_lvl
+        self.rh = rh
+        self.lh = lh
+        self.rl = rl
+        self.ll = ll
+    def attack(self, target):
+        if attack_lvl >= target.defence_lvl:
+            target.life -= 10
+            if taget.life <= 0:
+                print("target dead")
+                return False
               
+class Dwarf_general(object):
+    intelligence = 50
+    
+    def __init__(self, life, attack_lvl, defence_lvl, agility_lvl, charisma_lvl, strength_lvl, 
+               rh, lh, rl, ll ): #rh = right hand, ll = left leg. these slots hold equipment  
+        self.life = life
+        self.attack_lvl = attack_lvl
+        self.defence_lvl = defence_lvl
+        self.agility_lvl = agility_lvl
+        self.charisma_lvl = charisma_lvl
+        self.strength_lvl = strength_lvl
+        self.rh = rh
+        self.lh = lh
+        self.rl = rl
+        self.ll = ll
+    def attack(self, target):
+        if attack_lvl >= target.defence_lvl:
+            target.life -= 10
+            if taget.life <= 0:
+                print("target dead")
+                return False
+            
+class Skeleton_general(object):
+    intelligence = 10
+    
+    def __init__(self, life, attack_lvl, defence_lvl, agility_lvl, charisma_lvl, strength_lvl, 
+               rh, lh, rl, ll ): #rh = right hand, ll = left leg. these slots hold equipment  
+        self.life = life
+        self.attack_lvl = attack_lvl
+        self.defence_lvl = defence_lvl
+        self.agility_lvl = agility_lvl
+        self.charisma_lvl = charisma_lvl
+        self.strength_lvl = strength_lvl
+        self.rh = rh
+        self.lh = lh
+        self.rl = rl
+        self.ll = ll
+    def attack(self, target):
+        if attack_lvl >= target.defence_lvl:
+            target.life -= 10
+            if taget.life <= 0:
+                print("target dead")
+                return False
+            
 class General(object  #this is basically a human general
     intelligence = 10
     living = True
