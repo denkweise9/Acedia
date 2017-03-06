@@ -1,7 +1,7 @@
 #!/usr/bin/python3
+#RPG_Elements.py
 
-
-import sloth
+import sloth, random
 
 #Races in Game
 RPG_Elements_Races = {
@@ -14,7 +14,8 @@ RPG_Elements_Races = {
 
 #Characters that are teamed with our user
 RPG_Elements_Characters = {
-
+     User,
+     Ivan,
 
 }
 
@@ -22,6 +23,37 @@ RPG_Elements_Characters = {
 #NPC's to kill. Just General NPC's not quest/story related ones.
 #Would contain Currency_Dropped, Items Dropped, and XP_Given.
 RPG_Elements_Monsters = {
-
+    Goblin_reg,
+    Cow
 
 }
+
+
+
+#below is an experiment
+class Goblin_reg(object):
+    agility = 3
+    #charisma and intelligence are not applied because this is a regular npc goblin
+    def __init__(self, life, attack_lvl, defence_lvl):   #rh = right hand, ll = left leg
+        self.life = life
+        self.attack_lvl = attack_lvl
+        self.defence_lvl = defence_lvl
+    def attack(self, target):
+        if attack_lvl >= target.defence_lvl:
+            target.life -= 10
+            if taget.life <= 0:
+                print("target dead")
+                return False
+              
+              
+              
+#The following below is for exmaples only
+c = Goblin_reg(10,10,10)
+g = Goblin_reg(10,10,10)
+
+'''
+The following was tested
+In [69]: c.attack(g)
+target dead
+Out[69]: False
+'''
