@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 #RPG_Elements.py
+#This program is still a work in progress
 
 '''
     RPG_Elements.py contains all the elements and data needed for npc's 
@@ -23,12 +24,12 @@ import sloth, random
 
 # Values are Races in Game, Keys are the classes to each object
 RPG_Elements_Races = {
-"Elves":[Elf_general, Elf_guard],
-"Humans":[General, Guard, Farmer, Blacksmith, Merchant],
-"Dwarves":[Dwarf_guard],
+"Elves":[Elf_general, Elf_guard, Elf],
+"Humans":[General, Guard, Farmer, Blacksmith, Merchant, Bandit, Soldier],
+"Dwarves":[Dwarf_guard, Dwarf],
 "Goblins":[Goblin_reg, Goblin_general, Goblin_guard],
 "Skeletons":[Zombie, Skeleton],
-"Animals":[Cow, Pig, Chicken, Horse, Goat]
+"Animals":[Cow, Pig, Chicken, Horse, Goat, Dog, Cat, Mule]
 }
 
 # Values are Characters that are teamed with our user through quests and adventure, keys are the stats
