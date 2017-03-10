@@ -25,11 +25,13 @@ import sloth, random
 # Values are Races in Game, Keys are the classes to each object
 RPG_Elements_Races = {
 "Elves":[Elf_general, Elf_guard, Elf],
-"Humans":[General, Guard, Farmer, Blacksmith, Merchant, Bandit, Soldier],
-"Dwarves":[Dwarf_guard, Dwarf],
+"Humans":[General, Guard, Farmer, Blacksmith, Merchant, Bandit, Soldier, Giant],
+"Dwarves":[Dwarf_guard, Dwarven_miner, Dwarf],
 "Goblins":[Goblin_reg, Goblin_general, Goblin_guard],
-"Skeletons":[Zombie, Skeleton],
-"Animals":[Cow, Pig, Chicken, Horse, Goat, Dog, Cat, Mule]
+"Skeletons":[Zombie, Skeleton, Ghost],
+"Animals":[Cow, Pig, Chicken, Horse, Goat, Dog, Cat, Mule, Tiger, Lion, Unicorn],
+# Are the following possible?
+"Monsters":[Dragon, Kraken]
 }
 
 # Values are Characters that are teamed with our user through quests and adventure, keys are the stats
